@@ -21,7 +21,7 @@ export default ({ label, completed, id, children, handleDelete, handleComplete }
                 {label}
             </label> | 
             <button onClick={ () => handleDelete( id ) }> delete </button>
-            <button onClick={ () => handleComplete( id ) }> complete </button>
+            {/* <button onClick={ () => handleComplete( id ) }> complete </button> */}
         </div>
 
         <style jsx>{`
