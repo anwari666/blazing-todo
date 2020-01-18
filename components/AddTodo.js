@@ -1,8 +1,78 @@
 import React from 'react'
+import { useMutation } from '@apollo/react-hooks'
+import { gql, ApolloClient } from 'apollo-boost'
+import { FETCH_TODO } from './Todolist'
 
 
+/** the GQL query shite
+ * 
+ */
+const ADD_TODO = gql`
+  mutation add_todo( $order: Int!, $todolist_id: uuid!, $label: String! ) {
+  insert_todo ( objects: {order: $order, todolist_id: $todolist_id, label: $label } ) {
+        returning {
+          completed
+          date_created
+          id
+          label
+          order
+          todolist_id
+        }
+      }
+    }
+`
 
-const AddTodo = ({ label, onAddTodo, onLabelChange }) => {
+const AddTodo = ({ label, onLabelChange, onAddTodoCompleted }) => {
+
+    // define AddTodo
+    const [ mutation_addTodo ] = useMutation( ADD_TODO, 
+        { 
+          update: ( cache, { data } ) => {
+    
+            // Read existing cache
+            const existingCache = cache.readQuery({
+              query: FETCH_TODO
+            });
+        
+            // Tambahkan Todo baru ke cache. 
+            // this following line depends on the shape of the returning data hmmft.
+            const newTodo = data.insert_todo.returning[0];
+        
+            cache.writeQuery({
+              query: FETCH_TODO,
+              // the shape of this data should match the cache. whyyy....
+              data: {
+                todolist: [{ 
+                  ...existingCache.todolist[0], 
+                  todos: [ 
+                    newTodo,
+                    ...existingCache.todolist[0].todos
+                  ]
+                }]
+              }
+            })
+          },
+    
+          onCompleted: () => { onAddTodoCompleted(); console.log( 'todo inserted...') } 
+        });
+    
+
+    // the function to update the cache
+    const onAddTodo = (e) => {
+        e.preventDefault();
+
+        if (label === '') {
+            alert('label is empty!');
+        } else {
+            mutation_addTodo({ variables: { 
+                        order: 8, 
+                        todolist_id: "6efb65e3-9567-4d18-a205-aa2c102ccc14", 
+                        label 
+                    }
+                });
+        }
+    }
+
     return (<form onSubmit={ onAddTodo }><input 
             type="text" 
             placeholder="add your todo" 

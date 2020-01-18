@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Todo from './Todo'
 import AddTodo from './AddTodo'
 import { gql, ApolloClient } from 'apollo-boost'
-import { useQuery, useMutation, useApolloClient } from '@apollo/react-hooks'
+import { useQuery, useApolloClient } from '@apollo/react-hooks'
 
 const FETCH_TODO = gql`
   query fetch_todos {
@@ -23,21 +23,6 @@ const FETCH_TODO = gql`
     }
   }
   `;
-
-const ADD_TODO = gql`
-  mutation add_todo( $order: Int!, $todolist_id: uuid!, $label: String! ) {
-  insert_todo ( objects: {order: $order, todolist_id: $todolist_id, label: $label } ) {
-        returning {
-          completed
-          date_created
-          id
-          label
-          order
-          todolist_id
-        }
-      }
-    }
-`
 
 const handleDelete = ( id ) => {
   alert(`delete ${id}?`)
@@ -76,62 +61,16 @@ const Todolist = ({ todos }) => {
         })
     ) */
   }
-  
-
-  const [ addTodo ] = useMutation( ADD_TODO, 
-                          { 
-                            update: ( cache, { data } ) => {
-        
-                              // Read existing cache
-                              const existingCache = cache.readQuery({
-                                query: FETCH_TODO
-                              });
-                          
-                              // Tambahkan Todo baru ke cache. 
-                              // this following line depends on the shape of the returning data hmmft.
-                              const newTodo = data.insert_todo.returning[0];
-                          
-                              cache.writeQuery({
-                                query: FETCH_TODO,
-                                // the shape of this data should match the cache. whyyy....
-                                data: {
-                                  todolist: [{ 
-                                    ...existingCache.todolist[0], 
-                                    todos: [ 
-                                      ...existingCache.todolist[0].todos, 
-                                      newTodo
-                                    ]
-                                  }]
-                                }
-                              })
-                            },
-
-                            onCompleted: () => { setLabel(''); console.log( 'todo inserted...') } 
-                          });
-  
-  // the function to update the cace
-  
-  const onAddTodo = (e) => {
-    e.preventDefault();
-
-    if (label === '') {
-      alert('label is empty!');
-    } else {
-
-      addTodo({variables: { order: 8, todolist_id: "6efb65e3-9567-4d18-a205-aa2c102ccc14", label }});
-
-      // when success,
-      // setLabel('');
-    }
-  }
 
   const onLabelChange = ( event ) => {
     setLabel( event.target.value );
   }
 
+  
+
   return (
         <>
-            <AddTodo label={ label } onLabelChange={ onLabelChange } onAddTodo={ onAddTodo } />
+            <AddTodo label={ label } onLabelChange={ onLabelChange } onAddTodoCompleted={ () => { setLabel('') } } />
             { todos.map( (todo, index) => (
               <Todo 
                 key={ todo.id }
@@ -163,3 +102,4 @@ const TodolistQuery = () => {
 }
 
 export default TodolistQuery;
+export { FETCH_TODO }
