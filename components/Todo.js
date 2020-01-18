@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { FETCH_TODO } from './Todolist'
 
+// the obligatory GQL
 const DELETE_TODO = gql`
 mutation delete_todo( $todo_id: uuid! ){
     delete_todo( where: { id: { _eq: $todo_id } }) {
@@ -13,6 +14,7 @@ mutation delete_todo( $todo_id: uuid! ){
     }
   }`
 
+/** The default export from my todo. */
 export default ({ label, completed, id, children, handleComplete }) => {
     
     const [ mutation_deleteTodo ] = useMutation( DELETE_TODO, 

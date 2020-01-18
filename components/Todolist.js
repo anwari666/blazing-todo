@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import Todo from './Todo'
 import AddTodo from './AddTodo'
-import { gql, ApolloClient } from 'apollo-boost'
-import { useQuery, useApolloClient } from '@apollo/react-hooks'
+import { gql } from 'apollo-boost'
+import { useQuery } from '@apollo/react-hooks'
 
+/** The obligatory GQL */
 const FETCH_TODO = gql`
   query fetch_todos {
     todolist(where: {url : { _eq: "firstlist"}}) {
@@ -24,61 +25,23 @@ const FETCH_TODO = gql`
   }
   `;
 
-const handleDelete = ( id ) => {
-  alert(`delete ${id}?`)
-  /* setTodos( todos.filter( ( todo )=> {
-      return todo.id !== id
-  } ) ) */
-}
 
-
+/** The actual component */
 const Todolist = ({ todos }) => { 
-  const [ label, setLabel ] = useState('');
+  const [ label, setLabel ] = useState('')
 
-  const handleComplete = ( id ) => {
-    const DELETE_TODO = gql`
-      mutation delete_todo($id: String!) {
-        delete_todo(where: {id: {_eq: ${id} }}) {
-          returning {
-            label
-            completed
-          }
-        }
-      }
-    `
-
-    const [ delete_todo, { data } ] = useMutation( DELETE_TODO )
-
-
-    /* setTodos(
-        todos.map( (todo) => {
-            return todo.id !== id 
-                    ? todo 
-                    : { 
-                        ...todo, 
-                        completed : ! todo.completed 
-                      } // return a new todo
-        })
-    ) */
-  }
-
-  const onLabelChange = ( event ) => {
-    setLabel( event.target.value );
-  }
-
-  
+  const onLabelChange      = ( event ) => { setLabel( event.target.value )  }
+  const onAddTodoCompleted = () => { setLabel('') }
 
   return (
-        <>
-            <AddTodo label={ label } onLabelChange={ onLabelChange } onAddTodoCompleted={ () => { setLabel('') } } />
+        <div>
+            <AddTodo label={ label } onLabelChange={ onLabelChange } onAddTodoCompleted={ onAddTodoCompleted } />
             { todos.map( (todo, index) => (
               <Todo 
                 key={ todo.id }
-                handleDelete={ handleDelete }
-                handleComplete={ handleComplete }
                 {...todo} />
             )) } 
-        </>
+        </div>
     )
 }
 
