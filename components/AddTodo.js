@@ -1,11 +1,11 @@
 import React from 'react'
 import { useMutation } from '@apollo/react-hooks'
-import { gql, ApolloClient } from 'apollo-boost'
+import { gql } from 'apollo-boost'
 import { FETCH_TODO } from './Todolist'
 
 
-/** the GQL query shite
- * 
+/** The GQL query shite
+ *  
  */
 const ADD_TODO = gql`
   mutation add_todo( $order: Int!, $todolist_id: uuid!, $label: String! ) {
@@ -22,6 +22,10 @@ const ADD_TODO = gql`
     }
 `
 
+/** The Element itself.
+ * 
+ * @param {*} param0 
+ */
 const AddTodo = ({ label, onLabelChange, onAddTodoCompleted }) => {
 
     // define AddTodo
@@ -53,7 +57,7 @@ const AddTodo = ({ label, onLabelChange, onAddTodoCompleted }) => {
             })
           },
     
-          onCompleted: () => { onAddTodoCompleted(); console.log( 'todo inserted...') } 
+          onCompleted: () => { console.log( `${ label } inserted...`);  onAddTodoCompleted(); } 
         });
     
 
