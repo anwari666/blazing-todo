@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { FETCH_TODO } from './Todolist'
@@ -15,8 +16,8 @@ const DELETE_TODO = gql`
     }`;
 
 const UPDATE_TODO = gql`
-    mutation update_todo( $todo_id: uuid!, $completed: Boolean! ){
-        update_todo( where: { id: { _eq: $todo_id}}, _set: { completed: $completed }) {
+    mutation update_todo( $todo_id: uuid!, $completed: Boolean!, $label: String! ){
+        update_todo( where: { id: { _eq: $todo_id}}, _set: { completed: $completed, label: $label }) {
             affected_rows
             returning {
                 completed
@@ -31,6 +32,8 @@ const UPDATE_TODO = gql`
 
 /** The default export from my todo. */
 export default ({ label, order, completed, id }) => {
+    // const todo = { label, order, completed, id };
+    const [ visualState, setVisualState ] = useState('');
     
     const [ mutation_deleteTodo ] = useMutation( DELETE_TODO, 
         { 
@@ -59,7 +62,7 @@ export default ({ label, order, completed, id }) => {
           onCompleted: () => { console.log( `${ label } deleted...`); } 
         });
 
-    const handleDelete = (id) => {
+    const handleDelete = ( ) => {
         mutation_deleteTodo( {
             variables : {
                 todo_id: id
@@ -67,7 +70,7 @@ export default ({ label, order, completed, id }) => {
         } );
     }
 
-    const [ mutation_updateTodo ] = useMutation( UPDATE_TODO, 
+    const [ mutation_updateTodo ] = useMutation( UPDATE_TODO , 
         {
             update: ( cache, { data } ) => {
     
@@ -92,29 +95,54 @@ export default ({ label, order, completed, id }) => {
                 })
               },
         
-              onCompleted: () => { console.log( `${ label } updated coi...`); }
+              onCompleted: ( ) => { console.log( `${ label } updated coi...`); setVisualState('') }
         });
 
-    const handleComplete = ( id, completed ) => {
+    const handleComplete = ( ) => {
         mutation_updateTodo({
             variables : {
                 todo_id: id,
-                completed: ! completed
+                completed: ! completed,
+                label
             }
         })
     }
 
+    const handleOnChange = (e) => {
+        setNewLabel( e.target.value );
+    }
+
+    const [ newLabel, setNewLabel ] = useState( label );
+
+    const handleRename = ( e ) => {
+        e.preventDefault();
+
+        mutation_updateTodo({
+            variables : {
+                todo_id: id,
+                completed,
+                label: newLabel
+            }
+        })
+    }
+
+    
+
     return (
     <>
-        <div>
-            <label className={ completed ? 'completed' : undefined }>
-                {order}: {label}
-            </label> | 
-            <button onClick={ () => handleDelete( id ) }> delete </button>
-            <button onClick={ () => handleComplete( id, completed ) }> complete </button>
+        <div className={ visualState !== '' ? `state--${visualState}` : 'state--normal' }>
+            <label className={ completed ? 'completed' : undefined } onClick={ () => { setVisualState('rename') } }>
+                {order}: {label} | 
+            </label> 
+            <form onSubmit={ handleRename } ><input type="text" value={ newLabel } onChange={ handleOnChange } /> | </form>
+            <button onClick={ handleDelete }> X </button>
+            <button onClick={ handleComplete }> complete </button>
         </div>
 
         <style jsx>{`
+            form { display: inline; }
+            .state--normal form { display: none }
+            .state--rename label { display: none }
             .completed {
                 text-decoration: line-through;
                 color: gray
