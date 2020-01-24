@@ -30,13 +30,14 @@ const UPDATE_TODO = gql`
         }
     }`
 
-/** The default export from my todo. */
-export default ({ label, order, completed, id }) => {
-    // const todo = { label, order, completed, id };
+/** The default export from this file */
+const Todo = ( todo ) => {
+    const { label, order, completed, id } = todo
+
     const [ visualState, setVisualState ] = useState('');
     
-    const [ mutation_deleteTodo ] = useMutation( DELETE_TODO, 
-        { 
+    const [ mutation_deleteTodo ] = 
+        useMutation( DELETE_TODO, { 
           update: ( cache, { data } ) => {
     
             // Read existing cache
@@ -70,8 +71,8 @@ export default ({ label, order, completed, id }) => {
         } );
     }
 
-    const [ mutation_updateTodo ] = useMutation( UPDATE_TODO , 
-        {
+    const [ mutation_updateTodo ] = 
+        useMutation( UPDATE_TODO , {
             update: ( cache, { data } ) => {
     
                 // Read existing cache
@@ -94,7 +95,7 @@ export default ({ label, order, completed, id }) => {
                   }
                 })
               },
-        
+            
               onCompleted: ( ) => { console.log( `${ label } updated coi...`); setVisualState('') }
         });
 
@@ -104,7 +105,23 @@ export default ({ label, order, completed, id }) => {
                 todo_id: id,
                 completed: ! completed,
                 label
-            }
+            },
+            optimisticResponse : {
+                __typename: "Mutation",
+                update_todo: {
+                    __typename: "todo_mutation_response",
+                    affected_rows: 1,
+                    returning: [{
+                        __typename: "todo",
+                        completed: !completed,
+                        date_created: todo.date_created,
+                        id: id,
+                        label: label,
+                        order: todo.order,
+                        todolist_id: todo.todolist_id,
+                    }]
+                }
+              },
         })
     }
 
@@ -122,7 +139,23 @@ export default ({ label, order, completed, id }) => {
                 todo_id: id,
                 completed,
                 label: newLabel
-            }
+            },
+            optimisticResponse : {
+                __typename: "Mutation",
+                update_todo: {
+                    __typename: "todo_mutation_response",
+                    affected_rows: 1,
+                    returning: [{
+                        __typename: "todo",
+                        completed: completed,
+                        date_created: todo.date_created,
+                        id: id,
+                        label: newLabel,
+                        order: todo.order,
+                        todolist_id: todo.todolist_id,
+                    }]
+                }
+              },
         })
     }
 
@@ -131,10 +164,14 @@ export default ({ label, order, completed, id }) => {
     return (
     <>
         <div className={ visualState !== '' ? `state--${visualState}` : 'state--normal' }>
-            <label className={ completed ? 'completed' : undefined } onClick={ () => { setVisualState('rename') } }>
-                {order}: {label} | 
+            <label 
+                className={ completed ? 'completed' : undefined } 
+                onClick={ () => { setVisualState('rename') } }>
+                    {order}: {label} | 
             </label> 
-            <form onSubmit={ handleRename } ><input type="text" value={ newLabel } onChange={ handleOnChange } /> | </form>
+            <form onSubmit={ handleRename } >
+                <input type="text" value={ newLabel } onChange={ handleOnChange } /> | 
+            </form>
             <button onClick={ handleDelete }> X </button>
             <button onClick={ handleComplete }> complete </button>
         </div>
@@ -151,3 +188,5 @@ export default ({ label, order, completed, id }) => {
     </>
     );
 }
+
+export default Todo
