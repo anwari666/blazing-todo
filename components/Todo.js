@@ -30,6 +30,12 @@ const UPDATE_TODO = gql`
         }
     }`
 
+const UPDATE_TODO_ALT = gql`
+    mutation updateTodo ($todolist_id: uuid!, $newTodo: todo!) {
+        updateTodo(todolist_id: $todolist_id, newTodo: $newTodo) @client
+    }
+`
+
 /** The default export from this file */
 const Todo = ( todo ) => {
     const { label, order, completed, id } = todo
@@ -124,6 +130,14 @@ const Todo = ( todo ) => {
               },
         })
     }
+
+    const [handleCompleteAlt_mutation, {loading, error} ] = useMutation( UPDATE_TODO_ALT, {
+        variables: {
+            todolist_id: "TEUING",
+            newTodo: { ...todo, completed: !completed }
+        }
+    })
+    
 
     const handleOnChange = (e) => {
         setNewLabel( e.target.value );
