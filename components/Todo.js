@@ -17,7 +17,7 @@ const DELETE_TODO = gql`
 
 const UPDATE_TODO = gql`
     mutation update_todo( $todo_id: uuid!, $completed: Boolean!, $label: String! ){
-        update_todo( where: { id: { _eq: $todo_id}}, _set: { completed: $completed, label: $label }) {
+        update_todo( where: { id: { _eq: $todo_id } }, _set: { completed: $completed, label: $label }) {
             affected_rows
             returning {
                 completed
@@ -34,7 +34,7 @@ const UPDATE_TODO = gql`
 const Todo = ( todo ) => {
     const { label, order, completed, id } = todo
 
-    const [ visualState, setVisualState ] = useState('');
+    const [ visualState, setVisualState ] = useState('normal');
     
     const [ mutation_deleteTodo ] = 
         useMutation( DELETE_TODO, { 
@@ -152,14 +152,14 @@ const Todo = ( todo ) => {
               },
         })
 
-        setVisualState('');
+        setVisualState('normal');
     }
 
     
 
     return (
     <>
-        <div className={ visualState !== '' ? `state--${visualState}` : 'state--normal' }>
+        <div className={ `state--${visualState}` }>
             <label 
                 className={ completed ? 'completed' : undefined } 
                 onClick={ () => { setVisualState('rename') } }>
