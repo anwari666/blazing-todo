@@ -113,13 +113,9 @@ const Todo = ( todo ) => {
                     __typename: "todo_mutation_response",
                     affected_rows: 1,
                     returning: [{
+                        ...todo,
                         __typename: "todo",
-                        completed: !completed,
-                        date_created: todo.date_created,
-                        id: id,
-                        label: label,
-                        order: todo.order,
-                        todolist_id: todo.todolist_id,
+                        completed: !completed
                     }]
                 }
               },
@@ -148,13 +144,9 @@ const Todo = ( todo ) => {
                     __typename: "todo_mutation_response",
                     affected_rows: 1,
                     returning: [{
+                        ...todo,
                         __typename: "todo",
-                        completed: completed,
-                        date_created: todo.date_created,
-                        id: id,
                         label: newLabel,
-                        order: todo.order,
-                        todolist_id: todo.todolist_id,
                     }]
                 }
               },
