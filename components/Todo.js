@@ -3,6 +3,8 @@ import { useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { FETCH_TODO } from './Todolist'
 
+import { useRouter } from 'next/router'
+
 // the obligatory delete GQL
 const DELETE_TODO = gql`
     mutation delete_todo( $todo_id: uuid! ){
@@ -33,6 +35,10 @@ const UPDATE_TODO = gql`
 /** The default export from this file */
 const Todo = ( todo ) => {
     const { label, order, completed, id } = todo
+
+    // grab the todolist url. fu. might be better to keep this on the Todolist component.
+    const route = useRouter();
+    const { todolist_url } = route.query;
 
     const [ visualState, setVisualState ] = useState('normal');
     
@@ -77,7 +83,8 @@ const Todo = ( todo ) => {
     
                 // Read existing cache
                 const existingCache = cache.readQuery({
-                  query: FETCH_TODO
+                  query: FETCH_TODO,
+                  variables: { todolist_url }
                 });
             
                 // Tambahkan Todo dari cache

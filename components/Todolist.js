@@ -6,8 +6,8 @@ import { useQuery } from '@apollo/react-hooks'
 
 /** The obligatory GQL */
 const FETCH_TODO = gql`
-  query fetch_todos {
-    todolist(where: {url : { _eq: "firstlist"}}) {
+  query fetch_todos ( $todolist_url: String! ) {
+    todolist(where: {url : { _eq: $todolist_url }}) {
       id
       date_created
       date_completed
@@ -27,7 +27,7 @@ const FETCH_TODO = gql`
 
 
 /** The actual component */
-const Todolist = ({ todos }) => { 
+const Todolist = ({ todos, id, url }) => { 
   const [ label, setLabel ] = useState('')
 
   const onLabelChange      = ( event ) => { setLabel( event.target.value )  }
@@ -35,7 +35,11 @@ const Todolist = ({ todos }) => {
 
   return (
         <div>
-            <AddTodo label={ label } onLabelChange={ onLabelChange } onAddTodoCompleted={ onAddTodoCompleted } />
+            <AddTodo label={ label } 
+                onLabelChange={ onLabelChange } 
+                onAddTodoCompleted={ onAddTodoCompleted } 
+                todolist_id={ id } 
+                todolist_url={ url } />
             { todos.map( (todo, index) => (
               <Todo 
                 key={ todo.id }
@@ -48,8 +52,13 @@ const Todolist = ({ todos }) => {
 /**
  * Fetch the thingy. This is as simple as it gets
  */
-const TodolistQuery = () => {
-  const { data, loading, error } = useQuery(FETCH_TODO);
+const TodolistQuery = ( props ) => {
+  const { data, loading, error } = useQuery(FETCH_TODO, 
+                                      { 
+                                        variables: { 
+                                          todolist_url:  props.url 
+                                        } 
+                                      });
 
   if ( loading ) return (<h1>Loading</h1>);
   if ( error ) return (<h1>ERROR BRUH</h1>);
@@ -58,9 +67,9 @@ const TodolistQuery = () => {
   const todolistIsEmpty = todolist.length === 0;
 
   if ( todolistIsEmpty ) {
-    return <h2>Nuthin here....</h2>
+    return <h2>No such todolist here....</h2>
   } else {
-    return <Todolist todos={ todolist[0].todos } />
+    return <Todolist { ...todolist[0] } />
   }
 }
 

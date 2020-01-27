@@ -26,7 +26,7 @@ const ADD_TODO = gql`
  * 
  * @param {*} param0 
  */
-const AddTodo = ({ label, onLabelChange, onAddTodoCompleted }) => {
+const AddTodo = ({ label, onLabelChange, onAddTodoCompleted, todolist_id, todolist_url }) => {
 
     // define AddTodo
     const [ mutation_addTodo ] = useMutation( ADD_TODO, 
@@ -35,7 +35,8 @@ const AddTodo = ({ label, onLabelChange, onAddTodoCompleted }) => {
     
             // Read existing cache
             const existingCache = cache.readQuery({
-              query: FETCH_TODO
+              query: FETCH_TODO,
+              variables: { todolist_url }
             });
         
             // Tambahkan Todo baru ke cache. 
@@ -70,20 +71,21 @@ const AddTodo = ({ label, onLabelChange, onAddTodoCompleted }) => {
         } else {
             mutation_addTodo({ variables: { 
                         order: 8, 
-                        todolist_id: "6efb65e3-9567-4d18-a205-aa2c102ccc14", 
+                        todolist_id, 
                         label 
                     }
                 });
         }
     }
 
-    return (<form onSubmit={ onAddTodo }><input 
-            type="text" 
-            placeholder="add your todo" 
-            id="add_todo"
-            value={ label }
-            onChange = { onLabelChange }
-             />
+    return (<form onSubmit={ onAddTodo }>
+            <input 
+                  type="text" 
+                  placeholder="add your todo" 
+                  id="add_todo"
+                  value={ label }
+                  onChange = { onLabelChange }
+                  />
              <button type="submit">
                  submit coi
                  </button>

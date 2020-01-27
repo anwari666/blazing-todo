@@ -1,12 +1,11 @@
-import { ApolloProvider} from '@apollo/react-hooks'
-import client from '../config/apollo.js'
-import TodolistQuery from '../components/Todolist'
+import Link from 'next/link'
 
 export default () => {
     
     return (
-        <ApolloProvider client={ client }>
-            <TodolistQuery />
-        </ApolloProvider>
+        <>
+            <h1> Welcome to the static page for todolist! </h1>
+            <Link href="/firstlist">Go check the first list</Link>
+        </>
     )
 }
