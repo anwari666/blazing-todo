@@ -1,8 +1,9 @@
-it("should test something", ( ) => {
+
+it.skip("should test something", ( ) => {
     expect(true).toBe(true);
 })
 
-it("should test objects and array equality", () => {
+it.skip("should test objects and array equality", () => {
     expect({foo:'foo'}).toEqual({ foo: 'foo'})
     expect({foo:'foo'}).not.toEqual({ foo: 'bar'})
     
@@ -25,5 +26,6 @@ it("should test objects and array equality", () => {
 
 // this thing is called regardless whether each test succeed or failed
 afterEach( () => {
-    console.log('ran an `it()` test');
+    // console.log('ran an `it()` test');
+    // cleanup()
 })

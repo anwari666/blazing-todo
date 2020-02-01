@@ -43,6 +43,7 @@ const Todolist = ({ todos, id, url }) => {
             { todos.map( (todo, index) => (
               <Todo 
                 key={ todo.id }
+                todolist_url={ url }
                 {...todo} />
             )) } 
         </div>
@@ -74,4 +75,4 @@ const TodolistQuery = ( props ) => {
 }
 
 export default TodolistQuery;
-export { FETCH_TODO }
+export { FETCH_TODO, Todolist }

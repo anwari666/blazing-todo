@@ -33,12 +33,12 @@ const UPDATE_TODO = gql`
     }`
 
 /** The default export from this file */
-const Todo = ( todo ) => {
-    const { label, order, completed, id } = todo
+const Todo = ( props ) => {
+    const { label, order, completed, id, todolist_url } = props
 
-    // grab the todolist url. fu. might be better to keep this on the Todolist component.
-    const route = useRouter();
-    const { todolist_url } = route.query;
+    // !! grab the todolist url. fu. might be better to keep this on the Todolist component.
+    // const route = useRouter();
+    // const { todolist_url } = route.query;
 
     const [ visualState, setVisualState ] = useState('normal');
     
@@ -167,13 +167,15 @@ const Todo = ( todo ) => {
     return (
     <>
         <div className={ `state--${visualState}` }>
-            <label 
-                className={ completed ? 'completed' : undefined } 
-                onClick={ () => { setVisualState('rename') } }>
-                    {order}: {label} | 
-            </label> 
+            {order}: 
             <form onSubmit={ handleRename } >
-                <input type="text" value={ newLabel } onChange={ handleOnChange } /> | 
+                <label 
+                    htmlFor={ `todo-${id}` }
+                    className={ completed ? 'completed' : undefined } 
+                    onClick={ () => { setVisualState('rename') } }>
+                        {label}
+                </label> |
+                <input id={ `todo-${id}` } type="text" value={ newLabel } onChange={ handleOnChange } /> | 
             </form>
             <button onClick={ handleDelete }> X </button>
             <button onClick={ handleComplete }> complete </button>
