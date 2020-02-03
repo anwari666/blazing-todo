@@ -2,9 +2,10 @@
 import React from 'react'
 import TodolistQuery, { FETCH_TODO } from './Todolist'
 import { MockedProvider } from '@apollo/react-testing'
-import { render, cleanup, act } from '@testing-library/react'
-import wait from 'waait'
-// import "@testing-library/jest-dom/extend-expect"
+
+import { render, cleanup, act, wait, findAllByLabelText, getAllByPlaceholderText, getAllByText } from '@testing-library/react'
+// import wait from 'waait'
+import "@testing-library/jest-dom"
 
 const mocks= [{
     request: {
@@ -54,9 +55,9 @@ const mocks= [{
 
 describe("Todolist", () => {
 
-    afterEach( () => {cleanup()} );
+    afterEach( cleanup )
 
-    test.skip("Should render loading state", ()=>{
+    test.skip("Should render loading state", async ()=>{
         const id = "id"
         const url = "non-existent-url"
         const todos = []
@@ -68,9 +69,11 @@ describe("Todolist", () => {
             )
         expect(container.firstChild).toMatchSnapshot()
         expect(getByText('Loading')).toBeDefined()
+
+        await wait()
     });
 
-    test("Should render result", async ()=>{
+    test.skip("Should render result", async ()=>{
         const id = "id"
         const url = "something"
         const todos = []
@@ -82,10 +85,41 @@ describe("Todolist", () => {
             </MockedProvider>
         )
 
-        await wait(0);
+        await wait();
         expect(container.firstChild).toMatchSnapshot()
         expect(getByLabelText('first list')).toBeDefined()
         expect(getByLabelText('second list')).toBeDefined()
 
     });
+
+    test("Should render loading then result", async ()=>{
+      const id = "id"
+      const url = "something"
+      const todos = []
+
+      
+      const {getByLabelText, getByText, getAllByText, findByLabelText, container } = render(
+          <MockedProvider mocks={mocks} addTypename={ false }>
+              <TodolistQuery url={ url } />
+          </MockedProvider>
+      )
+
+      expect(getByText('Loading')).toBeDefined()
+
+      // this shite halt execution until we find the said element
+      const firstLabel = await findByLabelText('first list')
+
+      expect(firstLabel).toBeDefined()
+      
+      expect(getByText('first list')).toHaveClass("completed")
+      expect(getByText('first list')).toHaveStyle({textDecoration: "line-through"})
+
+      // and will let this go correctly
+      expect(getByText('second list')).toBeDefined()
+      expect(getByText('third list')).toBeDefined()
+
+      const forms = getAllByText('complete')
+      expect(forms.length).toBe(3)
+
+  });
 })

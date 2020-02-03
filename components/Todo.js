@@ -120,7 +120,7 @@ const Todo = ( props ) => {
                     __typename: "todo_mutation_response",
                     affected_rows: 1,
                     returning: [{
-                        ...todo,
+                        ...props,
                         __typename: "todo",
                         completed: !completed
                     }]
@@ -151,7 +151,7 @@ const Todo = ( props ) => {
                     __typename: "todo_mutation_response",
                     affected_rows: 1,
                     returning: [{
-                        ...todo,
+                        ...props,
                         __typename: "todo",
                         label: newLabel,
                     }]
@@ -183,7 +183,7 @@ const Todo = ( props ) => {
 
         <style jsx>{`
             form { display: inline; }
-            .state--normal form { display: none }
+            .state--normal input { display: none }
             .state--rename label { display: none }
             .completed {
                 text-decoration: line-through;

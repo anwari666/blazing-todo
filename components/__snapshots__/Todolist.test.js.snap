@@ -22,22 +22,22 @@ exports[`Todolist Should render result 1`] = `
     </button>
   </form>
   <div
-    class="jsx-2596249455 state--normal"
+    class="jsx-2092486926 state--normal"
   >
     8
     :
     <form
-      class="jsx-2596249455"
+      class="jsx-2092486926"
     >
       <label
-        class="jsx-2596249455 completed"
+        class="jsx-2092486926 completed"
         for="todo-40d3e176-e2af-431a-b3b2-8d4b2c1cd7c4"
       >
         first list
       </label>
        |
       <input
-        class="jsx-2596249455"
+        class="jsx-2092486926"
         id="todo-40d3e176-e2af-431a-b3b2-8d4b2c1cd7c4"
         type="text"
         value="first list"
@@ -45,33 +45,33 @@ exports[`Todolist Should render result 1`] = `
        |
     </form>
     <button
-      class="jsx-2596249455"
+      class="jsx-2092486926"
     >
        X 
     </button>
     <button
-      class="jsx-2596249455"
+      class="jsx-2092486926"
     >
        complete 
     </button>
   </div>
   <div
-    class="jsx-2596249455 state--normal"
+    class="jsx-2092486926 state--normal"
   >
     8
     :
     <form
-      class="jsx-2596249455"
+      class="jsx-2092486926"
     >
       <label
-        class="jsx-2596249455 completed"
+        class="jsx-2092486926 completed"
         for="todo-9eeb351d-1eb7-4da8-af04-2a82593f1c04"
       >
         second list
       </label>
        |
       <input
-        class="jsx-2596249455"
+        class="jsx-2092486926"
         id="todo-9eeb351d-1eb7-4da8-af04-2a82593f1c04"
         type="text"
         value="second list"
@@ -79,33 +79,33 @@ exports[`Todolist Should render result 1`] = `
        |
     </form>
     <button
-      class="jsx-2596249455"
+      class="jsx-2092486926"
     >
        X 
     </button>
     <button
-      class="jsx-2596249455"
+      class="jsx-2092486926"
     >
        complete 
     </button>
   </div>
   <div
-    class="jsx-2596249455 state--normal"
+    class="jsx-2092486926 state--normal"
   >
     8
     :
     <form
-      class="jsx-2596249455"
+      class="jsx-2092486926"
     >
       <label
-        class="jsx-2596249455 "
+        class="jsx-2092486926 "
         for="todo-609b9753-e59d-4c73-805d-5789d1ced5e5"
       >
         third list
       </label>
        |
       <input
-        class="jsx-2596249455"
+        class="jsx-2092486926"
         id="todo-609b9753-e59d-4c73-805d-5789d1ced5e5"
         type="text"
         value="third list"
@@ -113,12 +113,12 @@ exports[`Todolist Should render result 1`] = `
        |
     </form>
     <button
-      class="jsx-2596249455"
+      class="jsx-2092486926"
     >
        X 
     </button>
     <button
-      class="jsx-2596249455"
+      class="jsx-2092486926"
     >
        complete 
     </button>
