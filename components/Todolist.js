@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Todo from './Todo'
 import AddTodo from './AddTodo'
 import { gql } from 'apollo-boost'
-import { useQuery } from '@apollo/react-hooks'
+import { useQuery, useMutation } from '@apollo/react-hooks'
 
 /** The obligatory GQL */
 const FETCH_TODO = gql`
@@ -25,6 +25,20 @@ const FETCH_TODO = gql`
   }
   `;
 
+const UPDATE_TODO = gql`
+    mutation update_todo( $todo_id: uuid!, $completed: Boolean!, $label: String! ){
+        update_todo( where: { id: { _eq: $todo_id } }, _set: { completed: $completed, label: $label }) {
+            affected_rows
+            returning {
+                completed
+                date_created
+                id
+                label
+                order
+                todolist_id
+            }
+        }
+    }`
 
 /** The actual component */
 const Todolist = ({ todos, id, url }) => { 
@@ -32,6 +46,90 @@ const Todolist = ({ todos, id, url }) => {
 
   const onLabelChange      = ( event ) => { setLabel( event.target.value )  }
   const onAddTodoCompleted = () => { setLabel('') }
+
+
+  const [ mutation_updateTodo ] = 
+  useMutation( UPDATE_TODO , {
+      update: ( cache, { data } ) => {
+
+          // Read existing cache
+          const existingCache = cache.readQuery({
+            query: FETCH_TODO,
+            variables: { todolist_url: url }
+          });
+      
+          // Tambahkan Todo dari cache
+          const updatedTodo = data.update_todo.returning[0];
+      
+          const newCache = ({
+            query: FETCH_TODO,
+            // the shape of this data should match the cache. whyyy....
+            data: {
+              todolist: [{ 
+                ...existingCache.todolist[0], 
+                todos: existingCache.todolist[0].todos.map( (todo) => 
+                  (todo.id === updatedTodo.id) ? updatedTodo : todo )
+              }]
+            }
+          })
+
+          // console.log( newCache.data.todolist[0])
+          cache.writeQuery( newCache )
+        },
+      
+        onCompleted: ( data ) => { console.log( data.update_todo.returning[0]); console.log( `updated coi...`); },
+        onError: ( error ) => { console.error(error); console.log( `error coi...`); /* setVisualState('rename'); */ }
+  });
+
+const handleComplete = ( todo ) => {
+  const { id, completed, label } = todo
+  mutation_updateTodo({
+      variables : {
+          todo_id: id,
+          completed: ! completed,
+          label
+      },
+      optimisticResponse : {
+          __typename: "Mutation",
+          update_todo: {
+              __typename: "todo_mutation_response",
+              affected_rows: 1,
+              returning: [{
+                  ...todo,
+                  __typename: "todo",
+                  completed: !completed
+              }]
+          }
+        },
+  })
+}
+
+const handleRename = ( todo ) => {
+  const { id, completed, newLabel } = todo  
+
+  mutation_updateTodo({
+      variables : {
+          todo_id: id,
+          completed,
+          label: newLabel
+      },
+      optimisticResponse : {
+          __typename: "Mutation",
+          update_todo: {
+              __typename: "todo_mutation_response",
+              affected_rows: 1,
+              returning: [{
+                  ...todolist_id,
+                  __typename: "todo",
+                  label: newLabel,
+              }]
+          }
+        },
+  })
+
+  
+}
+
 
   return (
         <div>
@@ -44,6 +142,8 @@ const Todolist = ({ todos, id, url }) => {
               <Todo 
                 key={ todo.id }
                 todolist_url={ url }
+                handleComplete={ handleComplete } 
+                handleRename={ handleRename } 
                 {...todo} />
             )) } 
         </div>
@@ -75,4 +175,4 @@ const TodolistQuery = ( props ) => {
 }
 
 export default TodolistQuery;
-export { FETCH_TODO, Todolist }
+export { FETCH_TODO, UPDATE_TODO, Todolist }
