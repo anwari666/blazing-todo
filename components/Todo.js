@@ -90,7 +90,7 @@ const Todo = ( props ) => {
                 // Tambahkan Todo dari cache
                 const updatedTodo = data.update_todo.returning[0];
             
-                cache.writeQuery({
+                const newCache = ({
                   query: FETCH_TODO,
                   // the shape of this data should match the cache. whyyy....
                   data: {
@@ -101,10 +101,13 @@ const Todo = ( props ) => {
                     }]
                   }
                 })
+
+                // console.log( newCache.data.todolist[0])
+                cache.writeQuery( newCache )
               },
             
-              onCompleted: ( ) => { console.log( `${ label } updated coi...`); },
-              onError: ( ) => { console.log( `${ label } updated coi...`); setVisualState('rename'); }
+              onCompleted: ( data ) => { console.log( data.update_todo.returning[0]); console.log( `${ label } updated coi...`); },
+              onError: ( error ) => { console.error(error); console.log( `${ label } error coi...`); setVisualState('rename'); }
         });
 
     const handleComplete = ( ) => {
@@ -178,7 +181,7 @@ const Todo = ( props ) => {
                 <input id={ `todo-${id}` } type="text" value={ newLabel } onChange={ handleOnChange } /> | 
             </form>
             <button onClick={ handleDelete }> X </button>
-            <button onClick={ handleComplete }> complete </button>
+            <button data-testid={ `complete-${id}` } onClick={ handleComplete }> finish </button>
         </div>
 
         <style jsx>{`
@@ -195,3 +198,5 @@ const Todo = ( props ) => {
 }
 
 export default Todo
+
+export { UPDATE_TODO }
