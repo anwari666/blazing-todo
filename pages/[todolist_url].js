@@ -8,11 +8,15 @@ export default () => {
     const route = useRouter();
     const { todolist_url } = route.query;
     
-    return (
-        <ApolloProvider client={ client }>
-            <Link href="/"><a>Go home</a></Link>
-            <h2>Todolist.... <code>{ todolist_url }</code>!</h2>
-            <TodolistQuery url={ todolist_url } />
-        </ApolloProvider>
-    )
+    if ( todolist_url ) {
+        return (
+            <ApolloProvider client={ client }>
+                <Link href="/"><a>Go home</a></Link>
+                <h2>Todolist.... <code>{ todolist_url }</code>!</h2>
+                <TodolistQuery url={ todolist_url } />
+            </ApolloProvider>
+        )
+    } else {
+        return <h1> URL LOADING </h1>
+    }
 }
