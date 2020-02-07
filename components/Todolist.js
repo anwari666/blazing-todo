@@ -25,6 +25,18 @@ const FETCH_TODO = gql`
   }
   `;
 
+// the obligatory delete GQL
+const DELETE_TODO = gql`
+mutation delete_todo( $todo_id: uuid! ){
+    delete_todo( where: { id: { _eq: $todo_id } }) {
+        returning {
+            id
+            label
+            completed   
+        }
+    }
+}`;
+
 const UPDATE_TODO = gql`
     mutation update_todo( $todo_id: uuid!, $completed: Boolean!, $label: String! ){
         update_todo( where: { id: { _eq: $todo_id } }, _set: { completed: $completed, label: $label }) {
@@ -81,55 +93,90 @@ const Todolist = ({ todos, id, url }) => {
         onError: ( error ) => { console.error(error); console.log( `error coi...`); /* setVisualState('rename'); */ }
   });
 
-const handleComplete = ( todo ) => {
-  const { id, completed, label } = todo
-  mutation_updateTodo({
-      variables : {
-          todo_id: id,
-          completed: ! completed,
-          label
-      },
-      optimisticResponse : {
-          __typename: "Mutation",
-          update_todo: {
-              __typename: "todo_mutation_response",
-              affected_rows: 1,
-              returning: [{
-                  ...todo,
-                  __typename: "todo",
-                  completed: !completed
-              }]
-          }
+  const handleComplete = ( todo ) => {
+    const { id, completed, label } = todo
+    mutation_updateTodo({
+        variables : {
+            todo_id: id,
+            completed: ! completed,
+            label
         },
-  })
-}
+        optimisticResponse : {
+            __typename: "Mutation",
+            update_todo: {
+                __typename: "todo_mutation_response",
+                affected_rows: 1,
+                returning: [{
+                    ...todo,
+                    __typename: "todo",
+                    completed: !completed
+                }]
+            }
+          },
+    })
+  }
 
-const handleRename = ( todo ) => {
-  const { id, completed, newLabel } = todo  
+  const handleRename = ( todo ) => {
+    const { id, completed, newLabel } = todo  
 
-  mutation_updateTodo({
-      variables : {
-          todo_id: id,
-          completed,
-          label: newLabel
-      },
-      optimisticResponse : {
-          __typename: "Mutation",
-          update_todo: {
-              __typename: "todo_mutation_response",
-              affected_rows: 1,
-              returning: [{
-                  ...todolist_id,
-                  __typename: "todo",
-                  label: newLabel,
-              }]
-          }
+    mutation_updateTodo({
+        variables : {
+            todo_id: id,
+            completed,
+            label: newLabel
         },
-  })
+        optimisticResponse : {
+            __typename: "Mutation",
+            update_todo: {
+                __typename: "todo_mutation_response",
+                affected_rows: 1,
+                returning: [{
+                    ...todolist_id,
+                    __typename: "todo",
+                    label: newLabel,
+                }]
+            }
+          },
+    })
 
-  
-}
+    
+  }
 
+  const [ mutation_deleteTodo ] = 
+        useMutation( DELETE_TODO, { 
+          update: ( cache, { data } ) => {
+    
+            // Read existing cache
+            const existingCache = cache.readQuery({
+              query: FETCH_TODO,
+              variables: { todolist_url: url }
+            });
+        
+            // Tambahkan Todo dari cache
+            const deletedTodo = data.delete_todo.returning[0];
+        
+            cache.writeQuery({
+              query: FETCH_TODO,
+              // the shape of this data should match the cache. whyyy....
+              data: {
+                todolist: [{ 
+                  ...existingCache.todolist[0], 
+                  todos: existingCache.todolist[0].todos.filter( (todo) => (todo.id !== deletedTodo.id) )
+                }]
+              }
+            })
+          },
+    
+          onCompleted: () => { console.log( `todo deleted...`); } 
+        });
+
+    const handleDelete = ( todo_id ) => {
+        mutation_deleteTodo( {
+            variables : {
+                todo_id
+            }
+        } );
+    }
 
   return (
         <div>
@@ -144,6 +191,7 @@ const handleRename = ( todo ) => {
                 todolist_url={ url }
                 handleComplete={ handleComplete } 
                 handleRename={ handleRename } 
+                handleDelete={ handleDelete } 
                 {...todo} />
             )) } 
         </div>
@@ -175,4 +223,4 @@ const TodolistQuery = ( props ) => {
 }
 
 export default TodolistQuery;
-export { FETCH_TODO, UPDATE_TODO, Todolist }
+export { FETCH_TODO, UPDATE_TODO, DELETE_TODO, Todolist }

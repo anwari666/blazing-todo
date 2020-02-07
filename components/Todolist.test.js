@@ -1,19 +1,20 @@
 /* eslint-env jest */
 import React from 'react'
-import TodolistQuery, { FETCH_TODO } from './Todolist'
-import { UPDATE_TODO } from './Todo'
+import TodolistQuery, { FETCH_TODO, UPDATE_TODO, DELETE_TODO } from './Todolist'
+// import { UPDATE_TODO } from './Todo'
 import { MockedProvider } from '@apollo/react-testing'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 
 import { render, 
   cleanup, 
-  fireEvent,  
+  fireEvent,
   wait
 } from '@testing-library/react'
 // import wait from 'waait'
 import "@testing-library/jest-dom"
 
 let completeTodo = false;
+let deleteTodo = false;
 
 const mocks= [{
     request: {
@@ -82,9 +83,33 @@ const mocks= [{
     }
   ]}}
 }}
+},{
+  request: {
+    query: DELETE_TODO,
+    variables: {
+        todo_id: "40d3e176-e2af-431a-b3b2-8d4b2c1cd7c4"
+    }
+  },
+  result: () => {
+    deleteTodo = true
+    return {
+    "data": {
+      "delete_todo": {
+        "returning": [
+          {
+            "id": "40d3e176-e2af-431a-b3b2-8d4b2c1cd7c4",
+            "label": "first todo",
+            "completed": true,
+            "__typename": "todo"
+          }
+        ],
+        "__typename": "todo_mutation_response"
+      }
+    }
+  }}
 }]
 
-describe("Todolist", () => {
+describe.only("Todolist", () => {
 
     afterEach( cleanup )
 
@@ -92,10 +117,9 @@ describe("Todolist", () => {
       const url = "firstlist"
       const cache = new InMemoryCache()
 
-      
       const {getByLabelText, getByText, getByTestId, getAllByText, findByText, container, debug, rerender } = render(
-          <MockedProvider mocks={mocks} addTypename={ false } defaultOptions={ {cache} }>
-              <TodolistQuery url={ url } />
+          <MockedProvider mocks={mocks} addTypename={ false }>
+              <TodolistQuery url={ url }/>
           </MockedProvider>
       )
 
@@ -116,32 +140,40 @@ describe("Todolist", () => {
       expect(getByText('third todo')).toBeDefined()
       expect(getByText('third todo')).not.toHaveStyle({textDecoration: "line-through"})
 
-      const completeButtons = getAllByText('finish')
-      expect(completeButtons.length).toBe(3)
+      let deleteButtons = getAllByText('X')
+      expect(deleteButtons.length).toBe(3)
 
       // const firstTodoCompleteButton = getByTestId('complete-first-id')
-      fireEvent.click(completeButtons[0])
+      fireEvent.click(deleteButtons[0])
+      await wait()
+
+      expect(deleteTodo).toBe(true)
+
       // fireEvent.click(completeButtons[1])
       // fireEvent.click(completeButtons[2])
-      // rerender(
-      //   <MockedProvider mocks={mocks} addTypename={ false } cache={ cache }>
-      //       <TodolistQuery url={ url } />
-      //   </MockedProvider>
-      // )
+      rerender(
+        <MockedProvider mocks={mocks} addTypename={ false }>
+            <TodolistQuery url={ url } />
+        </MockedProvider>
+      )
       
-      // expect(getByText('first todo')).not.toHaveClass("completed")
+      // expect(getByText('first todo')).not.toBeInTheDocument()
 
       
-      await wait(  )
       // expect( completeTodo ).toBe(true)
+      await wait()
+
+      deleteButtons = getAllByText('X')
+      expect(deleteButtons.length).toBe(2)
+
       
-      expect(container.firstChild).toMatchSnapshot()
+      // expect(container.firstChild).toMatchSnapshot()
       // expect(await findByText('new todo')).not.toHaveClass("completed")
       // debug()
 
-      console.log( JSON.stringify( MockedProvider ));
+      // console.log( container.firstChild );
+      // console.log( JSON.stringify(  ));
 
-      // await wait()
       // debug()
       // console.log(container.firstChild)
 
