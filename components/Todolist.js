@@ -53,7 +53,8 @@ const UPDATE_TODO = gql`
     }`
 
 /** The actual component */
-const Todolist = ({ todos, id, url }) => { 
+const Todolist = ( props ) => { 
+  const { todos, id, url } = props.todolist
   const [ label, setLabel ] = useState('')
 
   const onLabelChange      = ( event ) => { setLabel( event.target.value )  }
@@ -89,7 +90,7 @@ const Todolist = ({ todos, id, url }) => {
           cache.writeQuery( newCache )
         },
       
-        onCompleted: ( data ) => { console.log( data.update_todo.returning[0]); console.log( `updated coi...`); },
+        onCompleted: ( data ) => { console.log( `${ data.update_todo.returning[0].label } updated coi...`); },
         onError: ( error ) => { console.error(error); console.log( `error coi...`); /* setVisualState('rename'); */ }
   });
 
@@ -131,7 +132,7 @@ const Todolist = ({ todos, id, url }) => {
                 __typename: "todo_mutation_response",
                 affected_rows: 1,
                 returning: [{
-                    ...todolist_id,
+                    ...todo,
                     __typename: "todo",
                     label: newLabel,
                 }]
@@ -215,10 +216,10 @@ const TodolistQuery = ( props ) => {
   const { todolist  } = data;
   const todolistIsEmpty = todolist.length === 0;
 
-  if ( todolistIsEmpty ) {
+  if ( data && todolistIsEmpty ) {
     return <h2>No such todolist here....</h2>
   } else {
-    return <Todolist { ...todolist[0] } />
+    return <Todolist todolist={ todolist[0] } />
   }
 }
 
