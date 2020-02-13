@@ -1,13 +1,9 @@
 import { useState } from 'react'
-import { useMutation } from '@apollo/react-hooks'
-import { gql } from 'apollo-boost'
-import { FETCH_TODO, UPDATE_TODO, DELETE_TODO } from './Todolist'
-
 
 
 /** The default export from this file */
 const Todo = ( props ) => {
-    const { label, order, completed, id, todolist_url, handleDelete, handleComplete, handleRename } = props
+    const { label, order, completed, id, handleDelete, handleComplete, handleRename } = props
 
     const [ visualState, setVisualState ] = useState('normal');
     
@@ -16,9 +12,6 @@ const Todo = ( props ) => {
     const handleOnChange = (e) => {
         setNewLabel( e.target.value );
     }
-
-
-
 
     return (
     <>

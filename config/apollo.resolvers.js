@@ -1,5 +1,5 @@
 import { gql } from 'apollo-boost'
-import { FETCH_TODO } from '../components/Todolist'
+import { FETCH_TODOLIST } from '../components/Todolist/Todolist.model'
 
 const typeDefs = gql`
     extend type Mutation {
@@ -11,7 +11,7 @@ const resolvers = {
     Mutation : {
         updateTodo: (_, { todolist_id, newTodo }, { cache }) => {
             const queryResult = cache.readQuery({
-                query: FETCH_TODO
+                query: FETCH_TODOLIST
             })
 
 
@@ -29,7 +29,7 @@ const resolvers = {
                 }
 
                 cache.writeQuery({
-                    query: FETCH_TODO, 
+                    query: FETCH_TODOLIST, 
                     data
                 })
 

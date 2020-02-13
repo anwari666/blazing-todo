@@ -1,7 +1,7 @@
 import React from 'react'
 import { useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
-import { FETCH_TODO } from './Todolist'
+import { FETCH_TODOLIST } from './Todolist.model'
 
 
 /** The GQL query shite
@@ -35,7 +35,7 @@ const AddTodo = ({ label, onLabelChange, onAddTodoCompleted, todolist_id, todoli
     
             // Read existing cache
             const existingCache = cache.readQuery({
-              query: FETCH_TODO,
+              query: FETCH_TODOLIST,
               variables: { todolist_url }
             });
         
@@ -44,7 +44,7 @@ const AddTodo = ({ label, onLabelChange, onAddTodoCompleted, todolist_id, todoli
             const newTodo = data.insert_todo.returning[0];
         
             cache.writeQuery({
-              query: FETCH_TODO,
+              query: FETCH_TODOLIST,
               // the shape of this data should match the cache. whyyy....
               data: {
                 todolist: [{ 
