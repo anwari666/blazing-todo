@@ -34,6 +34,39 @@ mutation delete_todo( $todo_id: uuid! ){
     }
 }`;
 
+const useDeleteTodo = ( url ) => {
+
+  const [ mutation_deleteTodo ] = 
+    useMutation( DELETE_TODO, { 
+      update: ( cache, { data } ) => {
+
+        // Read existing cache
+        const existingCache = cache.readQuery({
+          query: FETCH_TODOLIST,
+          variables: { todolist_url: url }
+        });
+    
+        // Tambahkan Todo dari cache
+        const deletedTodo = data.delete_todo.returning[0];
+    
+        cache.writeQuery({
+          query: FETCH_TODOLIST,
+          // the shape of this data should match the cache. whyyy....
+          data: {
+            todolist: [{ 
+              ...existingCache.todolist[0], 
+              todos: existingCache.todolist[0].todos.filter( (todo) => (todo.id !== deletedTodo.id) )
+            }]
+          }
+        })
+      },
+
+      onCompleted: () => { console.log( `todo deleted...`); } 
+    });
+
+  return mutation_deleteTodo
+}
+
 const UPDATE_TODO = gql`
     mutation update_todo( $todo_id: uuid!, $completed: Boolean!, $label: String! ){
         update_todo( where: { id: { _eq: $todo_id } }, _set: { completed: $completed, label: $label }) {
@@ -49,8 +82,48 @@ const UPDATE_TODO = gql`
         }
     }`
 
+
+// maybe just export these things?
+const useUpdateTodo = ( url ) => {
+  const [ mutation_updateTodo ] =   useMutation( UPDATE_TODO , {
+      update: ( cache, { data } ) => {
+
+          // Read existing cache
+          const existingCache = cache.readQuery({
+            query: FETCH_TODOLIST,
+            variables: { todolist_url: url }
+          });
+      
+          // Tambahkan Todo dari cache
+          const updatedTodo = data.update_todo.returning[0];
+      
+          const newCache = ({
+            query: FETCH_TODOLIST,
+            // the shape of this data should match the cache. whyyy....
+            data: {
+              todolist: [{ 
+                ...existingCache.todolist[0], 
+                todos: existingCache.todolist[0].todos.map( (todo) => 
+                  (todo.id === updatedTodo.id) ? updatedTodo : todo )
+              }]
+            }
+          })
+
+          // console.log( newCache.data.todolist[0])
+          cache.writeQuery( newCache )
+        },
+      
+        onCompleted: ( data ) => { console.log( `${ data.update_todo.returning[0].label } updated coi...`); },
+        onError: ( error ) => { console.error(error); console.log( `error coi...`); /* setVisualState('rename'); */ }
+  });
+
+  return mutation_updateTodo
+}
+
 export {
     FETCH_TODOLIST,
     DELETE_TODO,
-    UPDATE_TODO
+    useDeleteTodo,
+    UPDATE_TODO,
+    useUpdateTodo
 }

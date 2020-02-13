@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import Todo from './Todo'
 import AddTodo from './AddTodo'
-import { useQuery, useMutation } from '@apollo/react-hooks'
-import { FETCH_TODOLIST, DELETE_TODO, UPDATE_TODO } from './Todolist.model'
+import { useQuery } from '@apollo/react-hooks'
+import { FETCH_TODOLIST, useDeleteTodo, useUpdateTodo } from './Todolist.model'
 
 /** The actual component */
 const Todolist = ( props ) => { 
@@ -12,39 +12,7 @@ const Todolist = ( props ) => {
   const onLabelChange      = ( event ) => { setLabel( event.target.value )  }
   const onAddTodoCompleted = () => { setLabel('') }
 
-
-  const [ mutation_updateTodo ] = 
-  useMutation( UPDATE_TODO , {
-      update: ( cache, { data } ) => {
-
-          // Read existing cache
-          const existingCache = cache.readQuery({
-            query: FETCH_TODOLIST,
-            variables: { todolist_url: url }
-          });
-      
-          // Tambahkan Todo dari cache
-          const updatedTodo = data.update_todo.returning[0];
-      
-          const newCache = ({
-            query: FETCH_TODOLIST,
-            // the shape of this data should match the cache. whyyy....
-            data: {
-              todolist: [{ 
-                ...existingCache.todolist[0], 
-                todos: existingCache.todolist[0].todos.map( (todo) => 
-                  (todo.id === updatedTodo.id) ? updatedTodo : todo )
-              }]
-            }
-          })
-
-          // console.log( newCache.data.todolist[0])
-          cache.writeQuery( newCache )
-        },
-      
-        onCompleted: ( data ) => { console.log( `${ data.update_todo.returning[0].label } updated coi...`); },
-        onError: ( error ) => { console.error(error); console.log( `error coi...`); /* setVisualState('rename'); */ }
-  });
+  const mutation_updateTodo = useUpdateTodo( url )
 
   const handleComplete = ( todo ) => {
     const { id, completed, label } = todo
@@ -95,41 +63,14 @@ const Todolist = ( props ) => {
     
   }
 
-  const [ mutation_deleteTodo ] = 
-        useMutation( DELETE_TODO, { 
-          update: ( cache, { data } ) => {
-    
-            // Read existing cache
-            const existingCache = cache.readQuery({
-              query: FETCH_TODOLIST,
-              variables: { todolist_url: url }
-            });
-        
-            // Tambahkan Todo dari cache
-            const deletedTodo = data.delete_todo.returning[0];
-        
-            cache.writeQuery({
-              query: FETCH_TODOLIST,
-              // the shape of this data should match the cache. whyyy....
-              data: {
-                todolist: [{ 
-                  ...existingCache.todolist[0], 
-                  todos: existingCache.todolist[0].todos.filter( (todo) => (todo.id !== deletedTodo.id) )
-                }]
-              }
-            })
-          },
-    
-          onCompleted: () => { console.log( `todo deleted...`); } 
-        });
-
-    const handleDelete = ( todo_id ) => {
-        mutation_deleteTodo( {
-            variables : {
-                todo_id
-            }
-        } );
-    }
+  const mutation_deleteTodo = useDeleteTodo( url )
+  const handleDelete = ( todo_id ) => {
+      mutation_deleteTodo( {
+          variables : {
+              todo_id
+          }
+      } );
+  }
 
   return (
         <div>
