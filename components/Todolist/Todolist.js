@@ -10,8 +10,12 @@ const Todolist = ( props ) => {
   const [ label, setLabel ] = useState('')
 
   const onLabelChange      = ( event ) => { setLabel( event.target.value )  }
+
   const onAddTodoCompleted = () => { setLabel('') }
 
+  /**
+   * Logic for handling update todo
+   */
   const mutation_updateTodo = useUpdateTodo( url )
 
   const handleComplete = ( todo ) => {

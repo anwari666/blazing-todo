@@ -22,6 +22,64 @@ const FETCH_TODOLIST = gql`
   }
   `;
 
+
+/** The GQL query shite
+ *  
+ */
+const ADD_TODO = gql`
+  mutation add_todo( $order: Int!, $todolist_id: uuid!, $label: String! ) {
+  insert_todo ( objects: {order: $order, todolist_id: $todolist_id, label: $label } ) {
+        returning {
+          completed
+          date_created
+          id
+          label
+          order
+          todolist_id
+        }
+      }
+    }
+`
+
+// define AddTodo
+const useAddTodo = ( url, options = { onCompleted: () => false} ) => {
+
+  
+  const [ mutation_addTodo ] = useMutation( ADD_TODO, 
+    { 
+      update: ( cache, { data } ) => {
+
+        // Read existing cache
+        const existingCache = cache.readQuery({
+          query: FETCH_TODOLIST,
+          variables: { todolist_url: url }
+        });
+        
+        // Tambahkan Todo baru ke cache. 
+        // this following line depends on the shape of the returning data hmmft.
+        const newTodo = data.insert_todo.returning[0];
+        
+        cache.writeQuery({
+          query: FETCH_TODOLIST,
+          // the shape of this data should match the cache. whyyy....
+          data: {
+            todolist: [{ 
+              ...existingCache.todolist[0], 
+              todos: [ 
+                newTodo,
+                ...existingCache.todolist[0].todos
+              ]
+            }]
+          }
+        })
+      },
+      
+      onCompleted: () => { console.log( `todo inserted...`);  options.onCompleted(); } 
+    });
+
+    return mutation_addTodo
+}
+    
 // the obligatory delete GQL
 const DELETE_TODO = gql`
 mutation delete_todo( $todo_id: uuid! ){
@@ -122,6 +180,7 @@ const useUpdateTodo = ( url ) => {
 
 export {
     FETCH_TODOLIST,
+    useAddTodo,
     DELETE_TODO,
     useDeleteTodo,
     UPDATE_TODO,
