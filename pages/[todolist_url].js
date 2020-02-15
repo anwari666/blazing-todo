@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { ApolloProvider} from '@apollo/react-hooks'
 import client from '../config/apollo.js'
-import TodolistQuery from '../components/Todolist'
+import TodolistQuery from '../components/Todolist/Todolist'
 
 export default () => {
     const route = useRouter();
