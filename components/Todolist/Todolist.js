@@ -7,11 +7,6 @@ import { FETCH_TODOLIST, useDeleteTodo, useUpdateTodo } from './Todolist.model'
 /** The actual component */
 const Todolist = ( props ) => { 
   const { todos, id, url } = props.todolist
-  const [ label, setLabel ] = useState('')
-
-  const onLabelChange      = ( event ) => { setLabel( event.target.value )  }
-
-  const onAddTodoCompleted = () => { setLabel('') }
 
   /**
    * Logic for handling update todo
@@ -78,13 +73,11 @@ const Todolist = ( props ) => {
 
   /* There should be NO TWO <AddTodo /> instances at a time! */
   const currMaximumOrder = todos.reduce( (acc, todo) => Math.max(todo.order, acc), 0 )
-  const todosInView = [...todos].sort( (a, b) => b.order > a.order )  
+  const todosInView = [...todos].sort( (a, b) => b.order > a.order )
 
   return (
         <div>
-            <AddTodo label={ label } 
-                onLabelChange={ onLabelChange } 
-                onAddTodoCompleted={ onAddTodoCompleted } 
+            <AddTodo 
                 todolist_id={ id } 
                 todolist_url={ url }
                 order={ currMaximumOrder + 1 } />

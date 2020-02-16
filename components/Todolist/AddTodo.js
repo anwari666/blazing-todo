@@ -1,4 +1,4 @@
-import React from 'react'
+import { useState } from 'react'
 import { useAddTodo } from './Todolist.model'
 
 
@@ -6,7 +6,11 @@ import { useAddTodo } from './Todolist.model'
  * 
  * @param {*} param0 
  */
-const AddTodo = ({ label, onLabelChange, onAddTodoCompleted, todolist_id, todolist_url, order }) => {
+const AddTodo = ({ todolist_id, todolist_url, order }) => {
+
+    const [ label, setLabel ] = useState('')
+    const onLabelChange       = event => setLabel( event.target.value )
+    const onAddTodoCompleted  = () => setLabel('')
 
     const mutation_addTodo = useAddTodo( todolist_url, { onCompleted: onAddTodoCompleted } )
 
