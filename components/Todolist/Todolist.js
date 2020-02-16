@@ -78,6 +78,7 @@ const Todolist = ( props ) => {
 
   /* There should be NO TWO <AddTodo /> instances at a time! */
   const currMaximumOrder = todos.reduce( (acc, todo) => Math.max(todo.order, acc), 0 )
+  const todosInView = [...todos].sort( (a, b) => b.order > a.order )  
 
   return (
         <div>
@@ -87,8 +88,7 @@ const Todolist = ( props ) => {
                 todolist_id={ id } 
                 todolist_url={ url }
                 order={ currMaximumOrder + 1 } />
-            { todos
-                .sort( (a, b) => b.order > a.order )
+            { todosInView
                 .map( (todo, index) => (
                 <Todo 
                   key={ todo.id }

@@ -17,7 +17,12 @@ const AddTodo = ({ label, onLabelChange, onAddTodoCompleted, todolist_id, todoli
         if (label === '') {
             alert('label kosong coi!');
         } else {
-            mutation_addTodo({ variables: { order, todolist_id, label }} )
+            mutation_addTodo({ 
+                variables: { order, todolist_id, label },
+                optimisticResponse: {
+                    "insert_todo":{"returning" : [{"completed":false,"date_created":"2020-02-16T07:38:20.016548","id":"TEMPORARY","label":label,"order":order,"todolist_id":todolist_id,"__typename":"todo"}], "__typename" : "todo_mutation_response"}
+                }
+            } )
         }
     }
 
