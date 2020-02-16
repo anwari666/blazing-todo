@@ -15,6 +15,7 @@ const Todolist = ( props ) => {
 
   const handleComplete = ( todo ) => {
     const { id, completed, label } = todo
+
     mutation_updateTodo({
         variables : {
             todo_id: id,
@@ -62,6 +63,9 @@ const Todolist = ( props ) => {
     
   }
 
+  /**
+   * Logic for deleting todo
+   */
   const mutation_deleteTodo = useDeleteTodo( url )
   const handleDelete = ( todo_id ) => {
       mutation_deleteTodo( {

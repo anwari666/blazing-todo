@@ -13,18 +13,28 @@ const Todo = ( props ) => {
         setNewLabel( e.target.value );
     }
 
+    // handling keyboard events
+    const handleKeyDown = (event) => {
+        // in case of ESCAPE key is clicked
+        if (event.keyCode === 27)
+            cancelRename()
+    }
+    const cancelRename = () => { setVisualState('normal'); setNewLabel( label )}
+
+    const handleSubmit = (e) => {e.preventDefault();handleRename( {...props, newLabel} );setVisualState('normal');}
+
     return (
     <>
         <div className={ `state--${visualState}` }>
             {order}: 
-            <form onSubmit={ (e) => {e.preventDefault();handleRename( {...props, newLabel} );setVisualState('normal');} } >
+            <form onSubmit={ handleSubmit } >
                 <label 
                     htmlFor={ `todo-${id}` }
                     className={ completed ? 'completed' : undefined } 
                     onClick={ () => { setVisualState('rename') } }>
                         {label}
                 </label> |
-                <input id={ `todo-${id}` } type="text" value={ newLabel } onChange={ handleOnChange } /> | 
+                <input id={ `todo-${id}` } type="text" value={ newLabel } onChange={ handleOnChange } onKeyDown={ handleKeyDown } /> | 
             </form>
             <button onClick={ () => {handleDelete(id)} }> X </button>
             <button data-testid={ `complete-${id}` } onClick={ (e) => {handleComplete( props )} }> finish </button>
