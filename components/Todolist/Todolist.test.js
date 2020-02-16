@@ -113,6 +113,28 @@ const mocks= [{
       }
     }
   }}
+},{
+  request: {
+      query: UPDATE_TODO,
+      variables: {
+        "todo_id": "9eeb351d-1eb7-4da8-af04-2a82593f1c04",
+        "completed": true,
+        "label": "wanjays"
+    }
+  },
+  result:  { 
+    "data":{"update_todo":{"affected_rows" : 1, "returning" : [
+    {
+      "completed": true,
+      "date_created": "2020-01-18T21:12:00.27135",
+      "id": "9eeb351d-1eb7-4da8-af04-2a82593f1c04",
+      "label": "wanjays",
+      "order": 3,
+      "todolist_id": "6efb65e3-9567-4d18-a205-aa2c102ccc14",
+      "__typename": "todo"
+    }
+  ], "__typename": "todo_mutation_response"}}
+}
 }]
 
 describe("Todolist", () => {
@@ -123,7 +145,7 @@ describe("Todolist", () => {
       const url = "firstlist"
       const cache = new InMemoryCache()
 
-      const {getByLabelText, getByText, getByTestId, getAllByText, findByText, container, debug, rerender } = render(
+      const {getByLabelText, getByText, findByLabelText, getAllByText, findByText, container, debug, rerender } = render(
           <MockedProvider mocks={mocks} addTypename={ true }>
               <TodolistQuery url={ url }/>
           </MockedProvider>
@@ -166,6 +188,26 @@ describe("Todolist", () => {
       expect( newTodo ).not.toBeInTheDocument()
       expect( firstTodoDeleted ).toBe(true)
       
-      
+      /* PERHAPS USE ANOTHER TEST HERE TO TEST KEYBOARD EVENTS */
+      /* REFACTOR HERE HAHAH */
+      // try to click a todo and then enter.
+      const secondTodo = getByText(/second todo/i)
+      const secondTodoInput = getByLabelText(/second todo/i)
+      fireEvent.click( secondTodo )
+
+      await wait()
+      fireEvent.input( secondTodoInput , { target: { value: 'wanjays' }} )
+      fireEvent.submit( secondTodoInput )
+
+      expect( await findByLabelText(/wanjays/i) ).toBeInTheDocument()
+
+      const wanjaysInput = getByLabelText(/wanjays/i)
+      fireEvent.click( getByText(/wanjays/i) )
+      fireEvent.input( wanjaysInput , { target: { value: 'aduduuh' }} )
+      fireEvent.keyDown( wanjaysInput, { key: 'Escape', code: 27 } )
+
+      await wait()
+      expect( getByText(/wanjays/i) ).toBeInTheDocument()
+
   });
 })
