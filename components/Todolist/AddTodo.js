@@ -6,7 +6,7 @@ import { useAddTodo } from './Todolist.model'
  * 
  * @param {*} param0 
  */
-const AddTodo = ({ label, onLabelChange, onAddTodoCompleted, todolist_id, todolist_url }) => {
+const AddTodo = ({ label, onLabelChange, onAddTodoCompleted, todolist_id, todolist_url, order }) => {
 
     const mutation_addTodo = useAddTodo( todolist_url, { onCompleted: onAddTodoCompleted } )
 
@@ -15,14 +15,9 @@ const AddTodo = ({ label, onLabelChange, onAddTodoCompleted, todolist_id, todoli
         e.preventDefault();
 
         if (label === '') {
-            alert('label is empty!');
+            alert('label kosong coi!');
         } else {
-            mutation_addTodo({ variables: { 
-                        order: 8, 
-                        todolist_id, 
-                        label 
-                    }
-                });
+            mutation_addTodo({ variables: { order, todolist_id, label }} )
         }
     }
 
