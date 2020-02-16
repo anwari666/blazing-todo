@@ -38,7 +38,7 @@ const mocks= [{
                   "date_created": "2020-01-18T21:12:00.27135",
                   "id": "40d3e176-e2af-431a-b3b2-8d4b2c1cd7c4",
                   "label": "first todo",
-                  "order": 1,
+                  "order": 3,
                   "todolist_id": "6efb65e3-9567-4d18-a205-aa2c102ccc14",
                   "__typename": "todo"
                 },
@@ -56,7 +56,7 @@ const mocks= [{
                   "date_created": "2020-01-28T00:04:07.583056",
                   "id": "609b9753-e59d-4c73-805d-5789d1ced5e5",
                   "label": "third todo",
-                  "order": 3,
+                  "order": 1,
                   "todolist_id": "6efb65e3-9567-4d18-a205-aa2c102ccc14",
                   "__typename": "todo"
                 }
@@ -83,7 +83,7 @@ const mocks= [{
       "date_created": "2020-01-18T21:12:00.27135",
       "id": "40d3e176-e2af-431a-b3b2-8d4b2c1cd7c4",
       "label": "first todo",
-      "order": 8,
+      "order": 3,
       "todolist_id": "6efb65e3-9567-4d18-a205-aa2c102ccc14",
       "__typename": "todo"
     }

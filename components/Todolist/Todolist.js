@@ -76,8 +76,7 @@ const Todolist = ( props ) => {
       } );
   }
 
-  /* the implementation of this thingy should make sure that there are
-   * NO TWO <AddTodo /> instances at a time! */
+  /* There should be NO TWO <AddTodo /> instances at a time! */
   const currMaximumOrder = todos.reduce( (acc, todo) => Math.max(todo.order, acc), 0 )
 
   return (
@@ -88,15 +87,17 @@ const Todolist = ( props ) => {
                 todolist_id={ id } 
                 todolist_url={ url }
                 order={ currMaximumOrder + 1 } />
-            { todos.map( (todo, index) => (
-              <Todo 
-                key={ todo.id }
-                todolist_url={ url }
-                handleComplete={ handleComplete } 
-                handleRename={ handleRename } 
-                handleDelete={ handleDelete } 
-                {...todo} />
-            )) } 
+            { todos
+                .sort( (a, b) => b.order > a.order )
+                .map( (todo, index) => (
+                <Todo 
+                  key={ todo.id }
+                  todolist_url={ url }
+                  handleComplete={ handleComplete } 
+                  handleRename={ handleRename } 
+                  handleDelete={ handleDelete } 
+                  {...todo} />
+              )) } 
         </div>
     )
 }
