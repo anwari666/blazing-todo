@@ -9,25 +9,50 @@ const Todo = ( props ) => {
     
     
     const [ newLabel, setNewLabel ] = useState( label );
-    const handleOnChange = (e) => {
+    function handleOnChange(e) {
         setNewLabel( e.target.value );
     }
 
-    // handling keyboard events
-    const handleKeyDown = (event) => {
-        // in case of ESCAPE key is clicked
-        if (event.keyCode === 27)
-            cancelRename()
-    }
-    const cancelRename = () => { setVisualState('normal'); setNewLabel( label )}
 
-    const handleSubmit = (e) => {e.preventDefault();handleRename( {...props, newLabel} );setVisualState('normal');}
+    let cursorPosition = 0
+    // handling keyboard events
+    function handleKeyDown(event) {
+        // easier-to-remember variable names
+        const pressedEscape   = event.keyCode === 27
+        const pressedEnter    = event.keyCode === 13
+        
+        if ( pressedEscape )
+            cancelRename()
+        if ( pressedEnter ) {
+            cursorPosition =  event.target.selectionStart
+            console.log("enter is pushed!")
+            // handleSubmit(event)
+        }
+    }
+    function cancelRename() { setVisualState('normal'); setNewLabel( label )}
+
+    function handleSubmit(e) {
+        
+        handleRename( { ...props, newLabel, cursorPosition } )
+        setVisualState('normal')
+        // console.log("SUBMIT TODO COI!")
+       
+        e.preventDefault()
+    }
+
+    function handleFormSubmit(e) {
+        cursorPosition = (cursorPosition === 0) ? newLabel.length : cursorPosition
+        console.log("WHEN SUBMIT form: " + cursorPosition )
+        // will have to call `handleSubmit()` manually since it doesn't know what to do.
+        handleSubmit(e)
+        e.preventDefault()
+    }
 
     return (
     <>
         <div className={ `state--${visualState}` }>
             {order}: 
-            <form onSubmit={ handleSubmit } >
+            <form onSubmit={ handleFormSubmit } >
                 <label 
                     htmlFor={ `todo-${id}` }
                     className={ completed ? 'completed' : undefined } 

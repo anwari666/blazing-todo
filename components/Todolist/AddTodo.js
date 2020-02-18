@@ -12,6 +12,7 @@ const AddTodo = ({ todolist_id, todolist_url, order }) => {
     const onLabelChange       = event => setLabel( event.target.value )
     const onAddTodoCompleted  = () => setLabel('')
 
+    // !! is this onAddTodoCompleted necessary?
     const mutation_addTodo = useAddTodo( todolist_url, { onCompleted: onAddTodoCompleted } )
 
     // the function to update the cache
@@ -27,6 +28,7 @@ const AddTodo = ({ todolist_id, todolist_url, order }) => {
                     "insert_todo":{"returning" : [{"completed":false,"date_created":"2020-02-16T07:38:20.016548","id":"TEMPORARY","label":label,"order":order,"todolist_id":todolist_id,"__typename":"todo"}], "__typename" : "todo_mutation_response"}
                 }
             } )
+            setLabel('')
         }
     }
 

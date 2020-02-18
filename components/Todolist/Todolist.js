@@ -13,7 +13,7 @@ const Todolist = ( props ) => {
    */
   const mutation_updateTodo = useUpdateTodo( url )
 
-  const handleComplete = ( todo ) => {
+  function handleComplete( todo ) {
     const { id, completed, label } = todo
 
     mutation_updateTodo({
@@ -37,14 +37,25 @@ const Todolist = ( props ) => {
     })
   }
 
-  const handleRename = ( todo ) => {
-    const { id, completed, newLabel } = todo  
+  function handleRename( todo ) {
+    const { id, completed, newLabel, cursorPosition } = todo
+
+    console.log( cursorPosition )
+
+    const cursorEOL     = cursorPosition === newLabel.length
+    // this is error because i need to account for the usual `submit` event
+    // that is triggerred without any cursor, by clicking a button.
+    const currLabel = newLabel.slice(0, cursorPosition)
+    const nextLabel = newLabel.slice(cursorPosition, newLabel.length)
+    if (nextLabel === "")
+      setIndexOfAddTodo( getIndexOfTodo(id) + 1 )
+      
 
     mutation_updateTodo({
         variables : {
             todo_id: id,
             completed,
-            label: newLabel
+            label: currLabel
         },
         optimisticResponse : {
             __typename: "Mutation",
@@ -59,8 +70,10 @@ const Todolist = ( props ) => {
             }
           },
     })
+  }
 
-    
+  function getIndexOfTodo( id ){
+    return listView.findIndex( todo => todo.id === id )
   }
 
   /**
@@ -77,24 +90,43 @@ const Todolist = ( props ) => {
 
   /* There should be NO TWO <AddTodo /> instances at a time! */
   const currMaximumOrder = todos.reduce( (acc, todo) => Math.max(todo.order, acc), 0 )
-  const todosInView = [...todos].sort( (a, b) => b.order > a.order )
-
-  return (
-        <div>
-            <AddTodo 
+  const listView = [...todos].sort( (a, b) => b.order > a.order )
+  const AddTodoInstance = <AddTodo 
                 todolist_id={ id } 
                 todolist_url={ url }
                 order={ currMaximumOrder + 1 } />
-            { todosInView
-                .map( (todo, index) => (
-                <Todo 
-                  key={ todo.id }
-                  todolist_url={ url }
-                  handleComplete={ handleComplete } 
-                  handleRename={ handleRename } 
-                  handleDelete={ handleDelete } 
-                  {...todo} />
-              )) } 
+
+  const [indexOfAddTodo, setIndexOfAddTodo] = useState(0)
+
+  return (
+        <div>
+            
+            { listView
+                .map( (todo, index) => {
+                  if (index === indexOfAddTodo) {
+                    return (<div key="something"><AddTodo 
+                      key="AddTodo"
+                      todolist_id={ id } 
+                      todolist_url={ url }
+                      order={ currMaximumOrder + 1 } />
+                    <Todo 
+                      key={ todo.id }
+                      todolist_url={ url }
+                      handleComplete={ handleComplete } 
+                      handleRename={ handleRename } 
+                      handleDelete={ handleDelete }
+                      {...todo} /></div>)
+                  } else {
+                  return(
+                    <Todo 
+                      key={ todo.id }
+                      todolist_url={ url }
+                      handleComplete={ handleComplete } 
+                      handleRename={ handleRename } 
+                      handleDelete={ handleDelete }
+                      {...todo} />
+                  )}}) 
+              } 
         </div>
     )
 }
