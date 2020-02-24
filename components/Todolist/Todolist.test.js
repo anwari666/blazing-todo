@@ -3,7 +3,6 @@ import React from 'react'
 import TodolistQuery from './Todolist'
 import { FETCH_TODOLIST, UPDATE_TODO, DELETE_TODO } from './Todolist.model'
 import { MockedProvider } from '@apollo/react-testing'
-import { InMemoryCache } from 'apollo-cache-inmemory'
 
 import { render, 
   cleanup, 
@@ -14,8 +13,8 @@ import { render,
 // import wait from 'waait'
 import "@testing-library/jest-dom"
 
-let completeTodo = false;
-let firstTodoDeleted = false;
+let completeTodo = false
+let firstTodoDeleted = false
 
 const mocks= [{
     request: {
@@ -135,79 +134,107 @@ const mocks= [{
     }
   ], "__typename": "todo_mutation_response"}}
 }
+},{
+  request: {
+      query: UPDATE_TODO,
+      variables: {
+        "todo_id": "9eeb351d-1eb7-4da8-af04-2a82593f1c04",
+        "completed": true,
+        "label": ""
+    }
+  },
+  result:  { 
+    "data":{"update_todo":{"affected_rows" : 1, "returning" : [
+    {
+      "completed": true,
+      "date_created": "2020-01-18T21:12:00.27135",
+      "id": "9eeb351d-1eb7-4da8-af04-2a82593f1c04",
+      "label": "",
+      "order": 3,
+      "todolist_id": "6efb65e3-9567-4d18-a205-aa2c102ccc14",
+      "__typename": "todo"
+    }
+  ], "__typename": "todo_mutation_response"}}
+}
 }]
 
 describe("Todolist", () => {
+  let renderResult
 
-    afterEach( cleanup )
+  afterEach( cleanup )
+  beforeEach( () => {
+    const url = "firstlist"
+    
+    renderResult = render(
+        <MockedProvider mocks={mocks} addTypename={ true }>
+            <TodolistQuery url={ url }/>
+        </MockedProvider>
+    )
 
-    test("Should render loading then results correctly", async ()=>{
-      const url = "firstlist"
-      const cache = new InMemoryCache()
+    
+  })
 
-      const {getByLabelText, getByText, findByLabelText, getAllByText, findByText, container, debug, rerender } = render(
-          <MockedProvider mocks={mocks} addTypename={ true }>
-              <TodolistQuery url={ url }/>
-          </MockedProvider>
-      )
+  test("Should render loading then results correctly", async ()=>{
+    const { getByText, getAllByText, findByText } = renderResult
 
-      expect(getByText('Loading')).toBeDefined()
+    expect(getByText('Loading')).toBeDefined()
 
-      // this shite halt execution until we find the said element
-      const firstLabel = await findByText('first todo')
+    // this shite halt execution until we find the said element
+    const firstLabel = await findByText('first todo')
 
-      expect(firstLabel).toBeDefined()
-      
-      expect(firstLabel).toHaveClass("completed")
-      expect(firstLabel).toHaveStyle({textDecoration: "line-through"})
+    expect(firstLabel).toBeDefined()
+    
+    expect(firstLabel).toHaveClass("completed")
+    expect(firstLabel).toHaveStyle({textDecoration: "line-through"})
 
-      // and will let this go correctly
-      expect(getByText('second todo')).toBeDefined()
-      expect(getByText('second todo')).toHaveStyle({textDecoration: "line-through"})
+    // and will let this go correctly
+    expect(getByText('second todo')).toBeDefined()
+    expect(getByText('second todo')).toHaveStyle({textDecoration: "line-through"})
 
-      expect(getByText('third todo')).toBeDefined()
-      expect(getByText('third todo')).not.toHaveStyle({textDecoration: "line-through"})
+    expect(getByText('third todo')).toBeDefined()
+    expect(getByText('third todo')).not.toHaveStyle({textDecoration: "line-through"})
 
-      const toggleButtons = getAllByText(/finish/i)
-      expect(toggleButtons.length).toBe(3)
+    const toggleButtons = getAllByText(/finish/i)
+    expect(toggleButtons.length).toBe(3)
 
-      // complete one element
-      fireEvent.click(toggleButtons[0])
+    // complete one element
+    fireEvent.click(toggleButtons[0])
 
-      let newTodo = await findByText(/first todo/i)
-      expect(newTodo).toBeInTheDocument()
-      expect(newTodo).not.toHaveStyle('text-decoration: line-through')
-      
-      const deleteButtons = getAllByText(/X/i)
-      expect(deleteButtons.length).toBe(3)
+    let newTodo = await findByText(/first todo/i)
+    expect(newTodo).toBeInTheDocument()
+    expect(newTodo).not.toHaveStyle('text-decoration: line-through')
+    
+    const deleteButtons = getAllByText(/X/i)
+    expect(deleteButtons.length).toBe(3)
 
-      // delete one element
-      fireEvent.click(deleteButtons[0])
+    // delete one element
+    fireEvent.click(deleteButtons[0])
 
-      await waitForElementToBeRemoved(()=>( getByText(/first todo/i) ))
-      expect( newTodo ).not.toBeInTheDocument()
-      expect( firstTodoDeleted ).toBe(true)
-      
-      /* PERHAPS USE ANOTHER TEST HERE TO TEST KEYBOARD EVENTS */
-      /* REFACTOR HERE HAHAH */
-      // try to click a todo and then enter.
-      const secondTodo = getByText(/second todo/i)
-      const secondTodoInput = getByLabelText(/second todo/i)
-      fireEvent.click( secondTodo )
-
-      await wait()
-      fireEvent.input( secondTodoInput , { target: { value: 'wanjays' }} )
-      fireEvent.submit( secondTodoInput )
-
-      expect( await findByLabelText(/wanjays/i) ).toBeInTheDocument()
-
-      const wanjaysInput = getByLabelText(/wanjays/i)
-      fireEvent.click( getByText(/wanjays/i) )
-      fireEvent.input( wanjaysInput , { target: { value: 'aduduuh' }} )
-      fireEvent.keyDown( wanjaysInput, { key: 'Escape', code: 27 } )
-
-      await wait()
-      expect( getByText(/wanjays/i) ).toBeInTheDocument()
-
+    await waitForElementToBeRemoved(()=>( getByText(/first todo/i) ))
+    expect( newTodo ).not.toBeInTheDocument()
+    expect( firstTodoDeleted ).toBe(true)
   });
+
+  test('Keyboard Events', async () => {
+    const { getByLabelText, getByText, findByLabelText, findByText } = renderResult
+
+    // try to click a todo and then enter.
+    const secondTodo = await findByText(/second todo/i)
+    const secondTodoInput = getByLabelText(/second todo/i)
+    fireEvent.click( secondTodo )
+
+    await wait()
+    fireEvent.input( secondTodoInput , { target: { value: 'wanjays' }} )
+    fireEvent.submit( secondTodoInput )
+
+    expect( await findByLabelText(/wanjays/i) ).toBeInTheDocument()
+
+    const wanjaysInput = getByLabelText(/wanjays/i)
+    fireEvent.click( getByText(/wanjays/i) )
+    fireEvent.input( wanjaysInput , { target: { value: 'aduduuh' }} )
+    fireEvent.keyDown( wanjaysInput, { key: 'Escape', code: 27 } )
+
+    await wait()
+    expect( getByText(/wanjays/i) ).toBeInTheDocument()
+  })
 })
