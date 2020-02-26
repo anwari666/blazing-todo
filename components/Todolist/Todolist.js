@@ -103,32 +103,24 @@ const Todolist = ( props ) => {
             
             { listView
                 .map( (todo, index) => {
-                  if (index === indexOfAddTodo) {
-                    return (
-                      <div key="something">
-                        <AddTodo 
-                          key="AddTodo"
-                          todolist_id={ id } 
-                          todolist_url={ url }
-                          order={ currMaximumOrder + 1 } />
-                        <Todo 
-                          key={ todo.id }
-                          todolist_url={ url }
-                          handleComplete={ handleComplete } 
-                          handleRename={ handleRename } 
-                          handleDelete={ handleDelete }
-                          {...todo} />
-                      </div>)
-                  } else {
-                  return(
-                    <Todo 
-                      key={ todo.id }
+                  
+                  const TodoJSX = <Todo key={ todo.id }
                       todolist_url={ url }
                       handleComplete={ handleComplete } 
                       handleRename={ handleRename } 
                       handleDelete={ handleDelete }
                       {...todo} />
-                  )}}) 
+
+                  const AddTodoJSX = <AddTodo key="AddTodo"
+                    todolist_id={ id } 
+                    todolist_url={ url }
+                    order={ currMaximumOrder + 1 } />
+
+                  if (index === indexOfAddTodo) {                   
+                    return <div key="withAddTodo"> { AddTodoJSX } { TodoJSX } </div>
+                  } else 
+                    return TodoJSX                 
+                }) 
               } 
         </div>
     )
