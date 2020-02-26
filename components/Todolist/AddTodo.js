@@ -6,7 +6,7 @@ import { useAddTodo } from './Todolist.model'
  * 
  * @param {*} param0 
  */
-const AddTodo = ({ todolist_id, todolist_url, order }) => {
+const AddTodo = ({ todolist_id, todolist_url, order, removeAddTodo }) => {
 
     const [ label, setLabel ] = useState('')
     const onLabelChange       = event => setLabel( event.target.value )
@@ -32,6 +32,15 @@ const AddTodo = ({ todolist_id, todolist_url, order }) => {
         }
     }
 
+    function handleKeyDown(event) {
+        // easier-to-remember variable names
+        const pressedEscape   = event.keyCode === 27
+        // const pressedEnter    = event.keyCode === 13
+        
+        if ( pressedEscape )
+            removeAddTodo()
+    }
+
     return (<form onSubmit={ onAddTodo }>
             <input 
                   type="text" 
@@ -39,6 +48,8 @@ const AddTodo = ({ todolist_id, todolist_url, order }) => {
                   id="add_todo"
                   value={ label }
                   onChange = { onLabelChange }
+                  onKeyDown = { handleKeyDown }
+                  autoFocus
                   />
              <button type="submit">
                  submit coi

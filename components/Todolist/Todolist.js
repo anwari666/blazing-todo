@@ -76,11 +76,15 @@ const Todolist = ( props ) => {
     return listView.findIndex( todo => todo.id === id )
   }
 
+  function removeAddTodo(){
+    setIndexOfAddTodo( -1 )
+  }
+
   /**
    * Logic for deleting todo
    */
   const mutation_deleteTodo = useDeleteTodo( url )
-  const handleDelete = ( todo_id ) => {
+  function handleDelete( todo_id ) {
       mutation_deleteTodo( {
           variables : {
               todo_id
@@ -94,7 +98,8 @@ const Todolist = ( props ) => {
   const AddTodoInstance = <AddTodo 
                 todolist_id={ id } 
                 todolist_url={ url }
-                order={ currMaximumOrder + 1 } />
+                order={ currMaximumOrder + 1 }
+                removeAddTodo={ removeAddTodo } />
 
   const [indexOfAddTodo, setIndexOfAddTodo] = useState(0)
 
@@ -111,13 +116,8 @@ const Todolist = ( props ) => {
                       handleDelete={ handleDelete }
                       {...todo} />
 
-                  const AddTodoJSX = <AddTodo key="AddTodo"
-                    todolist_id={ id } 
-                    todolist_url={ url }
-                    order={ currMaximumOrder + 1 } />
-
                   if (index === indexOfAddTodo) {                   
-                    return <div key="withAddTodo"> { AddTodoJSX } { TodoJSX } </div>
+                    return <div key="withAddTodo"> { AddTodoInstance } { TodoJSX } </div>
                   } else 
                     return TodoJSX                 
                 }) 
