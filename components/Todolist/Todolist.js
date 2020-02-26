@@ -88,6 +88,9 @@ const Todolist = ( props ) => {
       mutation_deleteTodo( {
           variables : {
               todo_id
+          },
+          optimisticResponse: {
+            "delete_todo":{"returning":[{"id":todo_id,"label":"label","completed":false,"__typename":"todo"}],"__typename":"todo_mutation_response"}
           }
       } );
   }
