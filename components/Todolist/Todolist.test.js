@@ -112,7 +112,8 @@ const mocks= [{
       }
     }
   }}
-},{
+}]
+const wanjays = {
   request: {
       query: UPDATE_TODO,
       variables: {
@@ -134,7 +135,8 @@ const mocks= [{
     }
   ], "__typename": "todo_mutation_response"}}
 }
-},{
+};
+const kosong = {
   request: {
       query: UPDATE_TODO,
       variables: {
@@ -156,25 +158,24 @@ const mocks= [{
     }
   ], "__typename": "todo_mutation_response"}}
 }
-}]
+};
+
 
 describe("Todolist", () => {
+  const url = "firstlist"
   let renderResult
 
   afterEach( cleanup )
   beforeEach( () => {
-    const url = "firstlist"
     
     renderResult = render(
-        <MockedProvider mocks={mocks} addTypename={ true }>
+        <MockedProvider mocks={[...mocks, wanjays, kosong]} addTypename={ true }>
             <TodolistQuery url={ url }/>
         </MockedProvider>
     )
-
-    
   })
 
-  test("Should render loading then results correctly", async ()=>{
+  test("Render loading, the results, complete, and delete", async ()=>{
     const { getByText, getAllByText, findByText } = renderResult
 
     expect(getByText('Loading')).toBeDefined()
@@ -209,24 +210,26 @@ describe("Todolist", () => {
 
     // delete one element
     fireEvent.click(deleteButtons[0])
+    // await wait()
 
-    await waitForElementToBeRemoved(()=>( getByText(/first todo/i) ))
+    // await waitForElementToBeRemoved(()=>( getByText(/first todo/i) ))
+    // expect( await findByText(/first todo/i) ).toBe({})
     expect( newTodo ).not.toBeInTheDocument()
+    await wait()
     expect( firstTodoDeleted ).toBe(true)
   });
 
   test('Keyboard Events', async () => {
-    const { getByLabelText, getByText, findByLabelText, findByText } = renderResult
+
+    const { getByLabelText, getByText, findByLabelText, findByText, rerender } = renderResult
 
     // try to click a todo and then enter.
     const secondTodo = await findByText(/second todo/i)
-    const secondTodoInput = getByLabelText(/second todo/i)
     fireEvent.click( secondTodo )
-
-    await wait()
+    const secondTodoInput = getByLabelText(/second todo/i)
     fireEvent.input( secondTodoInput , { target: { value: 'wanjays' }} )
     fireEvent.submit( secondTodoInput )
-
+    
     expect( await findByLabelText(/wanjays/i) ).toBeInTheDocument()
 
     const wanjaysInput = getByLabelText(/wanjays/i)
