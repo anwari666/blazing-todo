@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 /** The default export from this file */
 const Todo = ( props ) => {
-    const { label, order, completed, id, handleDelete, handleComplete, handleRename } = props
+    const { label, order, completed, id, handleDelete, handleComplete, handleRename, handleNewTodo } = props
 
     const [ visualState, setVisualState ] = useState('normal');
     
@@ -24,42 +24,66 @@ const Todo = ( props ) => {
         if ( pressedEscape )
             cancelRename()
         if ( pressedEnter ) {
-            cursorPosition =  event.target.selectionStart
             console.log("enter is pushed!")
-            // handleSubmit(event)
+            cursorPosition =  event.target.selectionStart
+            
+            if ( cursorPosition !== newLabel.length ){
+                const currLabel = newLabel.slice(0, cursorPosition)
+                const nextLabel = newLabel.slice(cursorPosition, newLabel.length)
+
+                setNewLabel( currLabel )
+                handleNewTodo(id, nextLabel)
+
+                console.log(`rename WILL be called with: ${ currLabel }`)
+
+                handleSubmit(event)
+                // !! important to prevent default, teuing kunaon
+                event.preventDefault()
+            }
+            
+            // will call handleSubmit(event) after this manually
         }
     }
     function cancelRename() { setVisualState('normal'); setNewLabel( label )}
-
+    
     function handleSubmit(e) {
         
-        handleRename( { ...props, newLabel, cursorPosition } )
+        // handle rename as usual
+        handleRename( { ...props, newLabel } )
         setVisualState('normal')
-        // console.log("SUBMIT TODO COI!")
        
         e.preventDefault()
     }
 
     function handleFormSubmit(e) {
         cursorPosition = (cursorPosition === 0) ? newLabel.length : cursorPosition
-        console.log("WHEN SUBMIT form: " + cursorPosition )
+
+        // console.log("WHEN SUBMIT form: " + cursorPosition )
         // will have to call `handleSubmit()` manually since it doesn't know what to do.
         handleSubmit(e)
         e.preventDefault()
+    }
+
+    function handleOnBlur(e) {
+        handleSubmit(e)
     }
 
     return (
     <>
         <div className={ `state--${visualState}` }>
             {order}: 
-            <form onSubmit={ handleFormSubmit } >
+            <form onSubmit={ handleSubmit } >
                 <label 
                     htmlFor={ `todo-${id}` }
                     className={ completed ? 'completed' : undefined } 
                     onClick={ () => { setVisualState('rename') } }>
                         {label}
                 </label> |
-                <input id={ `todo-${id}` } type="text" value={ newLabel } onChange={ handleOnChange } onKeyDown={ handleKeyDown } /> | 
+                <input id={ `todo-${id}` } type="text" 
+                    value={ newLabel } 
+                    onChange={ handleOnChange } 
+                    onKeyDown={ handleKeyDown }
+                    onBlur={ handleSubmit } /> | 
             </form>
             <button onClick={ () => {handleDelete(id)} }> X </button>
             <button data-testid={ `complete-${id}` } onClick={ (e) => {handleComplete( props )} }> finish </button>

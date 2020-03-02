@@ -38,24 +38,15 @@ const Todolist = ( props ) => {
   }
 
   function handleRename( todo ) {
-    const { id, completed, newLabel, cursorPosition } = todo
+    const { id, completed, newLabel } = todo
 
-    console.log( cursorPosition )
-
-    const cursorEOL     = cursorPosition === newLabel.length
-    // this is error because i need to account for the usual `submit` event
-    // that is triggerred without any cursor, by clicking a button.
-    const currLabel = newLabel.slice(0, cursorPosition)
-    const nextLabel = newLabel.slice(cursorPosition, newLabel.length)
-    if (nextLabel === "")
-      setIndexOfAddTodo( getIndexOfTodo(id) + 1 )
-      
-
+    console.log(`rename is called with: ${ newLabel }`)
+    
     mutation_updateTodo({
         variables : {
             todo_id: id,
             completed,
-            label: currLabel
+            label: newLabel
         },
         optimisticResponse : {
             __typename: "Mutation",
@@ -68,8 +59,14 @@ const Todolist = ( props ) => {
                     label: newLabel,
                 }]
             }
-          },
+        },
     })
+  }
+
+  
+  function handleNewTodo(todo_id, label){
+    setLabel( label )
+    setIndexOfAddTodo( getIndexOfTodo( todo_id ) + 1 )
   }
 
   function getIndexOfTodo( id ){
@@ -98,11 +95,23 @@ const Todolist = ( props ) => {
   /* There should be NO TWO <AddTodo /> instances at a time! */
   const currMaximumOrder = todos.reduce( (acc, todo) => Math.max(todo.order, acc), 0 )
   const listView = [...todos].sort( (a, b) => b.order > a.order )
-  const AddTodoInstance = <AddTodo 
+  
+
+  const [ label, setLabel ] = useState('')
+  const onLabelChange       = event => setLabel( event.target.value )
+  const onAddTodoCompleted  = () => setLabel('')
+  
+  // !! Warning: Can't perform a React state update on an unmounted component. 
+  // This is a no-op, but it indicates a memory leak in your application. 
+  // To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function.
+  const AddTodoJSX = <AddTodo 
                 todolist_id={ id } 
                 todolist_url={ url }
                 order={ currMaximumOrder + 1 }
-                removeAddTodo={ removeAddTodo } />
+                removeAddTodo={ removeAddTodo }
+                label={ label }
+                onLabelChange={ onLabelChange }
+                onAddTodoCompleted={ onAddTodoCompleted } />
 
   const [indexOfAddTodo, setIndexOfAddTodo] = useState(0)
 
@@ -117,10 +126,14 @@ const Todolist = ( props ) => {
                       handleComplete={ handleComplete } 
                       handleRename={ handleRename } 
                       handleDelete={ handleDelete }
+                      handleNewTodo={ handleNewTodo }
                       {...todo} />
 
                   if (index === indexOfAddTodo) {                   
-                    return <div key="withAddTodo"> { AddTodoInstance } { TodoJSX } </div>
+                    return  <div key={ `withAddTodo-${ index }` } > 
+                              { AddTodoJSX }
+                              { TodoJSX } 
+                            </div>
                   } else 
                     return TodoJSX                 
                 }) 
