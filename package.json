@@ -22,7 +22,7 @@
     "@testing-library/jest-dom": "^5.1.0",
     "apollo-boost": "^0.4.7",
     "graphql": "^14.5.8",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "waait": "^1.0.5"
   },
   "jest": {
