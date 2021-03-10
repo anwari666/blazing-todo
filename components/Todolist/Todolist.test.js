@@ -212,7 +212,7 @@ describe("Todolist", () => {
     fireEvent.click(deleteButtons[0])
     // await wait()
 
-    // await waitForElementToBeRemoved(()=>( getByText(/first todo/i) ))
+    await waitForElementToBeRemoved(()=>( getByText(/first todo/i) ))
     // expect( await findByText(/first todo/i) ).toBe({})
     expect( newTodo ).not.toBeInTheDocument()
     await wait()
