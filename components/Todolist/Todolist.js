@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import Todo from './Todo'
 import AddTodo from './AddTodo'
 import { useQuery } from '@apollo/react-hooks'

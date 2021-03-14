@@ -7,7 +7,7 @@ import { MockedProvider } from '@apollo/react-testing'
 import { render, 
   cleanup, 
   fireEvent,
-  wait,
+  waitFor,
   waitForElementToBeRemoved
 } from '@testing-library/react'
 // import wait from 'waait'
@@ -215,7 +215,7 @@ describe("Todolist", () => {
     await waitForElementToBeRemoved(()=>( getByText(/first todo/i) ))
     // expect( await findByText(/first todo/i) ).toBe({})
     expect( newTodo ).not.toBeInTheDocument()
-    await wait()
+    // await waitFor()
     expect( firstTodoDeleted ).toBe(true)
   });
 
@@ -237,7 +237,7 @@ describe("Todolist", () => {
     fireEvent.input( wanjaysInput , { target: { value: 'aduduuh' }} )
     fireEvent.keyDown( wanjaysInput, { key: 'Escape', code: 27 } )
 
-    await wait()
+    // await waitFor()
     expect( getByText(/wanjays/i) ).toBeInTheDocument()
   })
 })
