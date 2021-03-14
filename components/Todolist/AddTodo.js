@@ -10,16 +10,17 @@ const AddTodo = ({ todolist_id, todolist_url, order }) => {
 
     const [ label, setLabel ] = useState('')
     const onLabelChange       = event => setLabel( event.target.value )
+    
     const onAddTodoCompleted  = () => setLabel('')
 
-    const mutation_addTodo = useAddTodo( todolist_url, { onCompleted: onAddTodoCompleted } )
+    const mutation_addTodo = useAddTodo( todolist_url, { onCompleted: false } ) // the onCompleted property was set to setLabel(''); but then it waits for the response from the server thus not snappy :/
 
     // the function to update the cache
     const onAddTodo = (e) => {
         e.preventDefault();
 
         if (label === '') {
-            alert('label kosong coi!');
+            alert('label is empty coi!');
         } else {
             mutation_addTodo({ 
                 variables: { order, todolist_id, label },
@@ -27,6 +28,8 @@ const AddTodo = ({ todolist_id, todolist_url, order }) => {
                     "insert_todo":{"returning" : [{"completed":false,"date_created":"2020-02-16T07:38:20.016548","id":"TEMPORARY","label":label,"order":order,"todolist_id":todolist_id,"__typename":"todo"}], "__typename" : "todo_mutation_response"}
                 }
             } )
+
+            setLabel('')
         }
     }
 
