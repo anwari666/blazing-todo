@@ -13,7 +13,7 @@ const AddTodo = ({ todolist_id, todolist_url, order }) => {
     
     const onAddTodoCompleted  = () => setLabel('')
 
-    const mutation_addTodo = useAddTodo( todolist_url, { onCompleted: false } ) // the onCompleted property was set to setLabel(''); but then it waits for the response from the server thus not snappy :/
+    const mutation_addTodo = useAddTodo( todolist_url ) // there used to be an onCompleted property option, and it here was coded to () => {setLabel('');} ; but then it waits for the response from the server thus not snappy :/
 
     // the function to update the cache
     const onAddTodo = (e) => {
